@@ -43,7 +43,7 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Build Web UI
-        run: pnpm build
+        run: pnpm build:gh-pages
         working-directory: examples/web-ui
 
       - name: Setup Pages
