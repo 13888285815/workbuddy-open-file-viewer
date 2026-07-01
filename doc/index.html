@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Open File Viewer is a framework-agnostic file preview SDK for vanilla JavaScript, React, Vue and Svelte."
+    />
+    <meta name="theme-color" content="#fbfaf8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080912" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="shortcut icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="mask-icon" href="/favicon.svg" color="#7c5cff" />
+    <script>
+      (() => {
+        const root = document.documentElement;
+        root.dataset.siteBoot = "loading";
+        try {
+          const theme = localStorage.getItem("ofv-site-theme") === "dark" ? "dark" : "light";
+          root.dataset.siteTheme = theme;
+        } catch {
+          root.dataset.siteTheme = "light";
+        }
+        window.setTimeout(() => {
+          if (root.dataset.siteBoot === "loading") {
+            root.dataset.siteBoot = "timeout";
+          }
+        }, 1600);
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: light;
+        background: #fbfaf8;
+      }
+
+      :root[data-site-theme="dark"] {
+        color-scheme: dark;
+        background: #080912;
+      }
+
+      html,
+      body {
+        min-height: 100%;
+        background-color: #fbfaf8;
+      }
+
+      :root[data-site-theme="dark"] body {
+        background-color: #080912;
+      }
+
+      :root[data-site-boot="loading"] body {
+        visibility: hidden;
+      }
+
+      :root[data-site-boot="loading"] *,
+      :root[data-site-boot="loading"] *::before,
+      :root[data-site-boot="loading"] *::after {
+        animation-play-state: paused !important;
+        transition: none !important;
+      }
+    </style>
+    <title>Open File Viewer - File Preview SDK for JS, React, Vue and Svelte</title>
+  </head>
+  <body>
+    <svg class="icon-sprite" aria-hidden="true" focusable="false">
+      <symbol id="icon-logo" viewBox="0 0 24 24">
+        <path class="logo-ring" d="M12 5.35a6.65 6.65 0 1 1 0 13.3 6.65 6.65 0 0 1 0-13.3Z" />
+        <path class="logo-pointer" d="M8.55 8.15 16.85 11.45 12.95 12.78 11.65 16.72 8.55 8.15Z" />
+      </symbol>
+      <symbol id="icon-docs" viewBox="0 0 24 24">
+        <path d="M7 3h7l4 4v14H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2Z" />
+        <path d="M14 3v4h4M8.5 12h7M8.5 15h7M8.5 18h4" />
+      </symbol>
+      <symbol id="icon-framework" viewBox="0 0 24 24">
+        <path d="M12 3 4.5 7.2v9.6L12 21l7.5-4.2V7.2L12 3Z" />
+        <path d="m4.8 7.5 7.2 4 7.2-4M12 11.5V21" />
+      </symbol>
+      <symbol id="icon-grid" viewBox="0 0 24 24">
+        <path d="M4 4h6v6H4V4ZM14 4h6v6h-6V4ZM4 14h6v6H4v-6ZM14 14h6v6h-6v-6Z" />
+      </symbol>
+      <symbol id="icon-api" viewBox="0 0 24 24">
+        <path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16" />
+      </symbol>
+      <symbol id="icon-play" viewBox="0 0 24 24">
+        <path d="M8 5.5v13l11-6.5-11-6.5Z" />
+      </symbol>
+      <symbol id="icon-moon" viewBox="0 0 24 24">
+        <path d="M20 15.2A8.2 8.2 0 0 1 8.8 4a8.6 8.6 0 1 0 11.2 11.2Z" />
+      </symbol>
+      <symbol id="icon-sun" viewBox="0 0 24 24">
+        <path d="M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8ZM12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      </symbol>
+      <symbol id="icon-github" viewBox="0 0 24 24">
+        <path d="M12 2.5a9.5 9.5 0 0 0-3 18.52c.48.09.65-.2.65-.46v-1.65c-2.65.58-3.2-1.12-3.2-1.12-.43-1.1-1.05-1.39-1.05-1.39-.86-.59.06-.58.06-.58.95.07 1.45.98 1.45.98.84 1.44 2.2 1.02 2.74.78.08-.61.33-1.02.6-1.26-2.11-.24-4.33-1.06-4.33-4.7 0-1.04.37-1.89.98-2.55-.1-.24-.43-1.22.09-2.52 0 0 .8-.26 2.62.98A9 9 0 0 1 12 7.2c.81 0 1.63.11 2.39.32 1.82-1.24 2.62-.98 2.62-.98.52 1.3.19 2.28.09 2.52.61.66.98 1.51.98 2.55 0 3.66-2.23 4.45-4.35 4.69.34.29.64.87.64 1.76v2.5c0 .26.17.56.66.46A9.5 9.5 0 0 0 12 2.5Z" />
+      </symbol>
+      <symbol id="icon-arrow" viewBox="0 0 24 24">
+        <path d="M5 12h13M13 6l6 6-6 6" />
+      </symbol>
+      <symbol id="icon-eye" viewBox="0 0 24 24">
+        <path d="M2.5 12s3.5-6 9.5-6 9.5 6 9.5 6-3.5 6-9.5 6-9.5-6-9.5-6Z" />
+        <path d="M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" />
+      </symbol>
+      <symbol id="icon-download" viewBox="0 0 24 24">
+        <path d="M12 3v11M8 10l4 4 4-4M5 20h14" />
+      </symbol>
+      <symbol id="icon-search" viewBox="0 0 24 24">
+        <path d="m21 21-4.3-4.3M10.8 18a7.2 7.2 0 1 1 0-14.4 7.2 7.2 0 0 1 0 14.4Z" />
+      </symbol>
+      <symbol id="icon-zoom" viewBox="0 0 24 24">
+        <path d="M11 18a7 7 0 1 0 0-14 7 7 0 0 0 0 14ZM21 21l-4.9-4.9M11 8v6M8 11h6" />
+      </symbol>
+      <symbol id="icon-rotate" viewBox="0 0 24 24">
+        <path d="M4 12a8 8 0 1 0 2.35-5.65L4 8.7" />
+        <path d="M4 4v4.7h4.7" />
+      </symbol>
+      <symbol id="icon-upload" viewBox="0 0 24 24">
+        <path d="M12 16V4M7 9l5-5 5 5M5 20h14" />
+      </symbol>
+      <symbol id="icon-puzzle" viewBox="0 0 24 24">
+        <path d="M9 3h6v4a2 2 0 1 0 4 0h2v6h-4a2 2 0 1 0 0 4h4v4h-6v-3a2 2 0 1 0-4 0v3H3v-6h4a2 2 0 1 0 0-4H3V7h6V3Z" />
+      </symbol>
+      <symbol id="icon-layers" viewBox="0 0 24 24">
+        <path d="m12 3 9 5-9 5-9-5 9-5Z" />
+        <path d="m3 12 9 5 9-5M3 16l9 5 9-5" />
+      </symbol>
+      <symbol id="icon-resize" viewBox="0 0 24 24">
+        <path d="M4 9V4h5M20 15v5h-5M4 15v5h5M20 9V4h-5" />
+        <path d="m4 4 6 6M20 20l-6-6M4 20l6-6M20 4l-6 6" />
+      </symbol>
+      <symbol id="icon-file" viewBox="0 0 24 24">
+        <path d="M6 3h7l5 5v13H6V3Z" />
+        <path d="M13 3v5h5" />
+      </symbol>
+      <symbol id="icon-image" viewBox="0 0 24 24">
+        <path d="M4 5h16v14H4V5Z" />
+        <path d="m4 16 5-5 4 4 2-2 5 5M15.5 9.5h.01" />
+      </symbol>
+      <symbol id="icon-code" viewBox="0 0 24 24">
+        <path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 4l-4 16" />
+      </symbol>
+      <symbol id="icon-cube" viewBox="0 0 24 24">
+        <path d="m12 3 8 4.5v9L12 21l-8-4.5v-9L12 3Z" />
+        <path d="m4.2 7.7 7.8 4.4 7.8-4.4M12 12.1V21" />
+      </symbol>
+      <symbol id="icon-archive" viewBox="0 0 24 24">
+        <path d="M4 7h16M5 7l1-4h12l1 4v14H5V7Z" />
+        <path d="M9 11h6" />
+      </symbol>
+      <symbol id="icon-database" viewBox="0 0 24 24">
+        <path d="M5 6c0-1.66 3.13-3 7-3s7 1.34 7 3-3.13 3-7 3-7-1.34-7-3Z" />
+        <path d="M5 6v6c0 1.66 3.13 3 7 3s7-1.34 7-3V6M5 12v6c0 1.66 3.13 3 7 3s7-1.34 7-3v-6" />
+      </symbol>
+      <symbol id="icon-check" viewBox="0 0 24 24">
+        <path d="m5 12 4 4 10-10" />
+      </symbol>
+      <symbol id="icon-heart" viewBox="0 0 24 24">
+        <path d="M20.8 5.6a5.2 5.2 0 0 0-7.4 0L12 7l-1.4-1.4a5.2 5.2 0 0 0-7.4 7.4L12 21l8.8-8a5.2 5.2 0 0 0 0-7.4Z" />
+      </symbol>
+       <symbol id="icon-list" viewBox="0 0 24 24">
+        <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+      </symbol>
+      <symbol id="icon-trash" viewBox="0 0 24 24">
+        <path d="M4 7h16M5 7l1.5 12h11L19 7M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M10 11v6M14 11v6" />
+      </symbol>
+    </svg>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="Open File Viewer home">
+        <span class="brand-mark">
+          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path class="logo-ring" d="M12 5.35a6.65 6.65 0 1 1 0 13.3 6.65 6.65 0 0 1 0-13.3Z" />
+            <path class="logo-pointer" d="M8.55 8.15 16.85 11.45 12.95 12.78 11.65 16.72 8.55 8.15Z" />
+          </svg>
+        </span>
+        <span>Open File Viewer</span>
+      </a>
+      <nav class="desktop-nav" aria-label="Primary navigation">
+        <a href="#docs"><svg><use href="#icon-docs"></use></svg><span data-i18n="nav.docs">文档</span></a>
+        <a href="#frameworks"><svg><use href="#icon-framework"></use></svg><span data-i18n="nav.frameworks">框架</span></a>
+        <a href="#formats"><svg><use href="#icon-grid"></use></svg><span data-i18n="nav.formats">格式</span></a>
+        <a href="/api.html"><svg><use href="#icon-api"></use></svg><span data-i18n="nav.api">API</span></a>
+        <a href="#playground"><svg><use href="#icon-play"></use></svg><span data-i18n="nav.playground">在线使用</span></a>
+        <a href="/about.html"><svg><use href="#icon-heart"></use></svg><span data-i18n="nav.about">关于我们</span></a>
+      </nav>
+      <div class="nav-actions">
+        <button class="ghost-icon" id="themeToggle" type="button" aria-label="Toggle dark mode"><svg><use href="#icon-moon"></use></svg></button>
+        <button class="ghost-icon" id="languageToggle" type="button">EN</button>
+        <a class="github-button" href="https://github.com/xushanpei/open-file-viewer" target="_blank" rel="noreferrer"><svg><use href="#icon-github"></use></svg><span>GitHub</span></a>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero">
+        <div class="hero-badge" data-i18n="hero.badge">开源文件预览 SDK</div>
+        <h1 data-i18n="hero.title">面向现代 Web 的文件预览基础设施</h1>
+        <p data-i18n="hero.lede">
+          一个兼容原生 JavaScript、React、Vue 和 Svelte 的嵌入式文件预览器。把 PDF、Office、图片、音视频、压缩包、邮件、图纸、3D、GIS 和工程文件放进同一个稳定容器。
+        </p>
+        <div class="hero-actions">
+          <a class="primary-button" href="/api.html"><span data-i18n="hero.primary">Get Started</span><svg><use href="#icon-arrow"></use></svg></a>
+          <a class="secondary-button" href="#playground"><svg><use href="#icon-eye"></use></svg><span data-i18n="hero.secondary">Live Demo</span></a>
+          <a class="secondary-button" href="#formats"><svg><use href="#icon-grid"></use></svg><span data-i18n="hero.tertiary">Formats</span></a>
+        </div>
+        <div class="works-with" aria-label="Framework support">
+          <span data-i18n="hero.works">Works seamlessly with</span>
+          <div>
+            <strong><span class="logo-chip js-logo">JS</span>Native JS</strong>
+            <strong><span class="logo-chip ts-logo">TS</span>TypeScript</strong>
+            <strong>
+              <span class="logo-chip react-logo" aria-hidden="true">
+                <svg viewBox="-11.5 -10.23 23 20.46" focusable="false">
+                  <circle cx="0" cy="0" r="2.05"></circle>
+                  <ellipse rx="11" ry="4.2"></ellipse>
+                  <ellipse rx="11" ry="4.2" transform="rotate(60)"></ellipse>
+                  <ellipse rx="11" ry="4.2" transform="rotate(120)"></ellipse>
+                </svg>
+              </span>
+              React
+            </strong>
+            <strong>
+              <span class="logo-chip vue-logo" aria-hidden="true">
+                <svg viewBox="0 0 256 221" focusable="false">
+                  <path class="vue-mark-outer" d="M204.8 0H256L128 220.8 0 0h97.92L128 51.2 157.44 0h47.36Z"></path>
+                  <path class="vue-mark-inner" d="M97.92 0 128 51.2 157.44 0h47.36L128 132.48 51.2 0h46.72Z"></path>
+                </svg>
+              </span>
+              Vue
+            </strong>
+            <strong>
+              <span class="logo-chip svelte-logo" aria-hidden="true">
+                <svg viewBox="0 0 107 128" preserveAspectRatio="xMidYMid meet" focusable="false">
+                  <path d="M94.1566 22.8189c-10.4-14.8851-30.94-19.2971-45.7914-9.8348L22.2825 29.6078A29.9234 29.9234 0 0 0 8.7639 49.6506a31.5136 31.5136 0 0 0 3.1076 20.2318A30.0061 30.0061 0 0 0 7.3953 81.0653a31.8886 31.8886 0 0 0 5.4473 24.1157c10.4022 14.8865 30.9423 19.2966 45.7914 9.8348l26.0827-16.6237A29.9177 29.9177 0 0 0 98.2353 78.3493 31.5263 31.5263 0 0 0 95.13 58.117a30 30 0 0 0 4.4743-11.1824 31.88 31.88 0 0 0-5.4473-24.1157"></path>
+                  <path d="M45.8171 106.5815A20.7182 20.7182 0 0 1 23.58 98.3389a19.1739 19.1739 0 0 1-3.2766-14.5025 18.1886 18.1886 0 0 1 .6233-2.4357l.4912-1.4978 1.3363.9815a33.6443 33.6443 0 0 0 10.203 5.0978l.9694.2941-.0893.9675a5.8474 5.8474 0 0 0 1.052 3.8781 6.2389 6.2389 0 0 0 6.6952 2.485 5.7449 5.7449 0 0 0 1.6021-.7041L69.27 76.281a5.4306 5.4306 0 0 0 2.4506-3.631 5.7948 5.7948 0 0 0-.9875-4.3712 6.2436 6.2436 0 0 0-6.6978-2.4864 5.7427 5.7427 0 0 0-1.6.7036l-9.9532 6.3449a19.0329 19.0329 0 0 1-5.2965 2.3259 20.7181 20.7181 0 0 1-22.2368-8.2427 19.1725 19.1725 0 0 1-3.2766-14.5024 17.9885 17.9885 0 0 1 8.13-12.0513l26.0811-16.6232a19.0038 19.0038 0 0 1 5.3-2.3287A20.7182 20.7182 0 0 1 83.42 29.6611a19.1739 19.1739 0 0 1 3.2766 14.5025 18.4 18.4 0 0 1-.6233 2.4357l-.4912 1.4978-1.3356-.98a33.6175 33.6175 0 0 0-10.2037-5.1l-.9694-.2942.0893-.9675a5.8588 5.8588 0 0 0-1.052-3.878 6.2389 6.2389 0 0 0-6.6952-2.485 5.7449 5.7449 0 0 0-1.6021.7041L37.73 51.719a5.4218 5.4218 0 0 0-2.4487 3.63 5.7862 5.7862 0 0 0 .9856 4.3717 6.2437 6.2437 0 0 0 6.6978 2.4864 5.7652 5.7652 0 0 0 1.602-.7041l9.9519-6.3425a18.978 18.978 0 0 1 5.2959-2.3278 20.7181 20.7181 0 0 1 22.2368 8.2427 19.1725 19.1725 0 0 1 3.2766 14.5024 17.9977 17.9977 0 0 1-8.13 12.0532l-26.0812 16.6218a19.0038 19.0038 0 0 1-5.3 2.3287"></path>
+                </svg>
+              </span>
+              Svelte
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <section class="preview-showcase" aria-label="Product preview">
+        <div class="browser-shell">
+          <div class="browser-top">
+            <div class="traffic"><span></span><span></span><span></span></div>
+            <div class="address">open-file-viewer.dev/preview</div>
+            <div class="top-actions"><span></span><span></span></div>
+          </div>
+          <div class="product-ui">
+            <aside class="file-rail">
+              <button class="active">PDF</button>
+              <button>DOCX</button>
+              <button>XLSX</button>
+              <button>DXF</button>
+              <button>GLB</button>
+            </aside>
+            <section class="paper-preview">
+              <div class="paper-toolbar">
+                <span><svg><use href="#icon-search"></use></svg>Search</span>
+                <span><svg><use href="#icon-zoom"></use></svg>Zoom</span>
+                <span><svg><use href="#icon-rotate"></use></svg>Rotate</span>
+                <span><svg><use href="#icon-download"></use></svg>Download</span>
+              </div>
+              <div class="paper">
+                <div class="paper-title"></div>
+                <div class="paper-line short"></div>
+                <div class="paper-line"></div>
+                <div class="paper-line medium"></div>
+                <div class="drawing-panel"><span></span><span></span><span></span></div>
+              </div>
+            </section>
+            <aside class="meta-panel">
+              <p>createViewer()</p>
+              <code>theme: "auto"</code>
+              <code>fit: "contain"</code>
+              <code>plugins: all</code>
+            </aside>
+          </div>
+        </div>
+      </section>
+
+      <section class="section two-ways" id="docs">
+        <div class="section-heading">
+          <p data-i18n="ways.eyebrow">Two ways to integrate</p>
+          <h2 data-i18n="ways.title">Use the ready-made viewer, or build your own.</h2>
+        </div>
+        <div class="way-grid">
+          <article>
+            <span><svg><use href="#icon-eye"></use></svg><span data-i18n="ways.dropin.label">Drop-in</span></span>
+            <h3 data-i18n="ways.dropin.title">OpenFileViewer Component</h3>
+            <p data-i18n="ways.dropin.desc">用内置 UI 快速上线，获得工具栏、主题、多文件队列、容器自适应和失败降级。</p>
+            <div class="editor-window compact-editor">
+              <div class="editor-titlebar"><span></span><span></span><span></span><strong>terminal</strong></div>
+              <pre><code>npm install @open-file-viewer/core</code></pre>
+            </div>
+          </article>
+          <article>
+            <span><svg><use href="#icon-puzzle"></use></svg><span data-i18n="ways.headless.label">Composable</span></span>
+            <h3 data-i18n="ways.headless.title">Plugin-first Core</h3>
+            <p data-i18n="ways.headless.desc">通过插件协议接入自定义渲染器、WASM 或服务端转换结果，React/Vue/Svelte/原生 JS 共用同一核心。</p>
+            <div class="editor-window compact-editor">
+              <div class="editor-titlebar"><span></span><span></span><span></span><strong>viewer.ts</strong></div>
+              <pre><code>plugins: [pdfPlugin(), officePlugin(), customPlugin()]</code></pre>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section feature-section">
+        <div class="feature-list">
+          <article>
+            <div class="feature-icon"><svg><use href="#icon-layers"></use></svg></div>
+            <h3 data-i18n="feature.one.title">Batteries included</h3>
+            <p data-i18n="feature.one.desc">PDF、Office、OFD、EPUB、XPS、图片、音视频、压缩包、邮件、CAD、GIS、3D 和文本插件开箱可用。</p>
+          </article>
+          <article>
+            <div class="feature-icon"><svg><use href="#icon-framework"></use></svg></div>
+            <h3 data-i18n="feature.two.title">Framework agnostic</h3>
+            <p data-i18n="feature.two.desc">原生 JavaScript、React、Vue 和 Svelte 使用同一套 core 能力，方便团队跨产品复用。</p>
+          </article>
+          <article>
+            <div class="feature-icon"><svg><use href="#icon-resize"></use></svg></div>
+            <h3 data-i18n="feature.three.title">Container-first</h3>
+            <p data-i18n="feature.three.desc">所有预览都在你的 DOM 容器内完成，支持尺寸变化、黑色模式、下载和错误边界。</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section integration-section" id="frameworks">
+        <div class="split-heading">
+          <div>
+            <p data-i18n="integration.eyebrow">Drop-in Integration</p>
+            <h2 data-i18n="integration.title">Add a viewer in minutes.</h2>
+          </div>
+          <p data-i18n="integration.desc">选择 Vanilla JS、React、Vue 或 Svelte。底层插件一致，UI 可以先用默认组件，再逐步定制。</p>
+        </div>
+        <div class="code-frame">
+          <div class="editor-window">
+            <div class="editor-titlebar">
+              <span></span><span></span><span></span>
+              <strong>Open File Viewer</strong>
+            </div>
+            <div class="framework-tabs" role="tablist" aria-label="Framework examples">
+              <button class="active" type="button" data-code-tab="vanilla">Vanilla JS</button>
+              <button type="button" data-code-tab="react">React</button>
+              <button type="button" data-code-tab="vue">Vue</button>
+              <button type="button" data-code-tab="svelte">Svelte</button>
+            </div>
+            <p id="frameworkCopy"></p>
+            <pre><code id="codeSample"></code></pre>
+          </div>
+        </div>
+      </section>
+
+      <section class="section playground-section" id="playground">
+        <div class="split-heading">
+          <div>
+            <p data-i18n="playground.eyebrow">Try it live</p>
+            <h2 data-i18n="playground.title">Drop files and preview them instantly.</h2>
+          </div>
+          <p data-i18n="playground.desc">本地文件只在浏览器内读取，不会上传。你也可以用内置示例体验 Markdown、JSON、SVG 和 DXF。</p>
+        </div>
+        <div class="playground-container">
+          <div class="playground-main">
+            <aside class="file-manager-panel" id="fileManagerPanel">
+              <div class="file-manager-header">
+                <h3><svg><use href="#icon-file"></use></svg><span data-i18n="filemanager.title">文件管理器</span></h3>
+                <button class="fm-toggle" id="fmToggle" type="button" aria-label="Toggle file manager">
+                  <svg><use href="#icon-arrow"></use></svg>
+                </button>
+              </div>
+              <div class="file-manager-list" id="fileManagerList">
+                <!-- 文件列表将由JS动态生成 -->
+              </div>
+            </aside>
+            <main class="playground-content">
+              <div class="viewer-toolbar" id="viewerToolbar">
+                <div class="vt-search">
+                  <svg><use href="#icon-search"></use></svg>
+                  <input type="text" id="fileSearch" placeholder="搜索文件..." autocomplete="off" />
+                  <button class="vt-search-clear" id="searchClear" hidden>
+                    <svg><use href="#icon-check"></use></svg>
+                  </button>
+                </div>
+                <div class="vt-sort-group">
+                  <button class="vt-sort-btn active" data-sort="name">名称</button>
+                  <button class="vt-sort-btn" data-sort="size">大小</button>
+                  <button class="vt-sort-btn" data-sort="type">类型</button>
+                </div>
+                <div class="vt-actions">
+                  <button class="vt-action-btn" id="fmUpload" title="添加文件">
+                    <svg><use href="#icon-upload"></use></svg>
+                  </button>
+                  <button class="vt-action-btn" id="fmClear" title="清空">
+                    <svg><use href="#icon-trash"></use></svg>
+                  </button>
+                </div>
+                <span class="vt-file-name" id="vtFileName">未选择文件</span>
+              </div>
+              <section class="viewer-card">
+                <div id="viewer"></div>
+              </section>
+              <aside class="controls-card">
+                <label class="file-drop" for="file">
+                  <span class="drop-icon"><svg><use href="#icon-upload"></use></svg></span>
+                  <strong data-i18n="playground.dropTitle">Choose or drop files</strong>
+                  <small data-i18n="playground.dropDesc">Multi-file preview queue supported</small>
+                  <span class="file-picker-row">
+                    <span class="file-picker-button"><svg><use href="#icon-upload"></use></svg><span data-i18n="playground.chooseFile">Choose files</span></span>
+                    <span class="file-picker-name" id="filePickerName" data-i18n="playground.noFile">No file selected</span>
+                  </span>
+                  <input id="file" type="file" multiple />
+                </label>
+                <label>
+                  <span data-i18n="playground.sample">Built-in sample</span>
+                  <select id="sample"></select>
+                </label>
+                <label class="url-preview-control">
+                  <span data-i18n="playground.urlLabel">File URL</span>
+                  <span class="url-preview-row">
+                    <input id="fileUrl" type="url" inputmode="url" placeholder="https://example.com/report.pdf" />
+                    <button id="previewUrl" type="button" data-i18n="playground.urlAction">Preview URL</button>
+                  </span>
+                  <small data-i18n="playground.urlHint">Use a public URL with CORS enabled.</small>
+                </label>
+                <div class="control-grid">
+                  <label>
+                    <span data-i18n="playground.width">Width</span>
+                    <input id="width" value="100%" />
+                  </label>
+                  <label>
+                    <span data-i18n="playground.height">Height</span>
+                    <input id="height" value="680px" />
+                  </label>
+                </div>
+                <div class="control-grid">
+                  <label>
+                    <span data-i18n="playground.fit">Fit</span>
+                    <select id="fit">
+                      <option value="contain">contain</option>
+                      <option value="cover">cover</option>
+                      <option value="width">width</option>
+                      <option value="height">height</option>
+                      <option value="actual">actual</option>
+                      <option value="scale-down">scale-down</option>
+                    </select>
+                  </label>
+                  <label>
+                    <span data-i18n="playground.viewerTheme">Theme</span>
+                    <select id="theme">
+                      <option value="auto">auto</option>
+                      <option value="light">light</option>
+                      <option value="dark">dark</option>
+                    </select>
+                  </label>
+                </div>
+                <button class="primary-button full" id="apply" type="button"><svg><use href="#icon-check"></use></svg><span data-i18n="playground.apply">Apply settings</span></button>
+              </aside>
+            </main>
+          </div>
+        </div>
+      </section>
+
+      <section class="section formats-section" id="formats">
+        <div class="section-heading">
+          <p data-i18n="formats.eyebrow">Format matrix</p>
+          <h2 data-i18n="formats.title">Built for real product attachments.</h2>
+        </div>
+        <div class="format-grid" id="formatGrid"></div>
+      </section>
+
+      <section class="section api-section" id="api">
+        <div class="split-heading">
+          <div>
+            <p data-i18n="api.eyebrow">API Reference</p>
+            <h2 data-i18n="api.title">A small API surface with room to extend.</h2>
+          </div>
+          <p data-i18n="api.desc">核心 API 保持克制：容器、文件、插件、尺寸、主题和事件回调。复杂格式能力由插件扩展。</p>
+        </div>
+        <div class="api-summary-grid">
+          <a class="api-summary-card" href="/api.html#frameworks">
+            <span><svg><use href="#icon-framework"></use></svg></span>
+            <strong>Frameworks</strong>
+            <p>Vanilla JS、React、Vue、Svelte 的安装、接入方式和差异说明。</p>
+          </a>
+          <a class="api-summary-card" href="/api.html#options">
+            <span><svg><use href="#icon-api"></use></svg></span>
+            <strong>PreviewOptions</strong>
+            <p>文件源、队列、尺寸、主题、回调、降级和实例方法完整说明。</p>
+          </a>
+          <a class="api-summary-card" href="/api.html#toolbar">
+            <span><svg><use href="#icon-puzzle"></use></svg></span>
+            <strong data-i18n="toolbar.title">Toolbar Customization</strong>
+            <p data-i18n="toolbar.desc">支持自定义文案、顺序、图标、审批/收藏/分享等业务按钮，也可以完全替换工具栏。</p>
+          </a>
+          <a class="api-summary-card" href="/api.html#plugins">
+            <span><svg><use href="#icon-layers"></use></svg></span>
+            <strong>Plugin Protocol</strong>
+            <p>通过 match/render 协议扩展自定义格式、服务端转换结果或业务专属渲染器。</p>
+          </a>
+        </div>
+      </section>
+
+      <section class="cta-band">
+        <h2 data-i18n="cta.title">Ship file previews without building every renderer from scratch.</h2>
+        <p data-i18n="cta.desc">从一个稳定容器开始，让文件预览能力持续进化。</p>
+        <a class="primary-button" href="#playground"><span data-i18n="cta.action">Try the playground</span><svg><use href="#icon-arrow"></use></svg></a>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <span>Open File Viewer</span>
+      <span data-i18n="footer.text">Framework-agnostic file preview SDK for modern web products.</span>
+    </footer>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

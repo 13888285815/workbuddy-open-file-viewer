@@ -1,0 +1,232 @@
+{
+  "version": "1.1.0",
+  "lastUpdate": "2026-07-01",
+  "description": "按常用程度排序的文件格式功能导航",
+  "modules": [
+    {
+      "id": "images",
+      "label": "🖼️ 图片",
+      "icon": "🖼️",
+      "expanded": true,
+      "description": "浏览和编辑图片文件",
+      "children": [
+        { "id": "jpg", "label": "JPG 图片", "icon": "🖼️", "extensions": [".jpg", ".jpeg"], "mime": "image/jpeg" },
+        { "id": "png", "label": "PNG 图片", "icon": "🖼️", "extensions": [".png"], "mime": "image/png" },
+        { "id": "gif", "label": "GIF 动图", "icon": "🎞️", "extensions": [".gif"], "mime": "image/gif" },
+        { "id": "webp", "label": "WebP 图", "icon": "🖼️", "extensions": [".webp"], "mime": "image/webp" },
+        { "id": "svg", "label": "SVG 矢量图", "icon": "📐", "extensions": [".svg"], "mime": "image/svg+xml" },
+        { "id": "bmp", "label": "BMP 位图", "icon": "🖼️", "extensions": [".bmp"], "mime": "image/bmp" },
+        { "id": "ico", "label": "ICO 图标", "icon": "🏷️", "extensions": [".ico"], "mime": "image/x-icon" },
+        { "id": "tiff", "label": "TIFF 扫描件", "icon": "🖼️", "extensions": [".tiff", ".tif"], "mime": "image/tiff" },
+        { "id": "heic", "label": "HEIC 高效图", "icon": "🖼️", "extensions": [".heic", ".heif"], "mime": "image/heic" }
+      ]
+    },
+    {
+      "id": "documents",
+      "label": "📄 文档",
+      "icon": "📄",
+      "expanded": false,
+      "description": "PDF、Office文档和电子书",
+      "children": [
+        { "id": "pdf", "label": "PDF 文档", "icon": "📕", "extensions": [".pdf"], "mime": "application/pdf" },
+        { "id": "docx", "label": "Word 文档", "icon": "📘", "extensions": [".docx"], "mime": "application/vnd.openxmlformats-officedocument.wordprocessingml.document" },
+        { "id": "xlsx", "label": "Excel 表格", "icon": "📗", "extensions": [".xlsx", ".xls"], "mime": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" },
+        { "id": "pptx", "label": "PPT 演示", "icon": "📙", "extensions": [".pptx", ".ppt"], "mime": "application/vnd.openxmlformats-officedocument.presentationml.presentation" },
+        { "id": "txt", "label": "文本文件", "icon": "📝", "extensions": [".txt", ".log"], "mime": "text/plain" },
+        { "id": "md", "label": "Markdown", "icon": "📝", "extensions": [".md", ".markdown"], "mime": "text/markdown" },
+        { "id": "rtf", "label": "RTF 富文本", "icon": "📄", "extensions": [".rtf"], "mime": "application/rtf" },
+        { "id": "csv", "label": "CSV 表格", "icon": "📊", "extensions": [".csv"], "mime": "text/csv" },
+        { "id": "json", "label": "JSON 数据", "icon": "📋", "extensions": [".json"], "mime": "application/json" },
+        { "id": "xml", "label": "XML 数据", "icon": "📋", "extensions": [".xml"], "mime": "application/xml" },
+        { "id": "yaml", "label": "YAML 配置", "icon": "⚙️", "extensions": [".yaml", ".yml"], "mime": "text/yaml" }
+      ]
+    },
+    {
+      "id": "videos",
+      "label": "🎬 视频",
+      "icon": "🎬",
+      "expanded": false,
+      "description": "视频文件播放",
+      "children": [
+        { "id": "mp4", "label": "MP4 视频", "icon": "🎬", "extensions": [".mp4"], "mime": "video/mp4" },
+        { "id": "webm", "label": "WebM 视频", "icon": "🎬", "extensions": [".webm"], "mime": "video/webm" },
+        { "id": "mov", "label": "MOV 视频", "icon": "🎬", "extensions": [".mov", ".qt"], "mime": "video/quicktime" },
+        { "id": "avi", "label": "AVI 视频", "icon": "🎬", "extensions": [".avi"], "mime": "video/x-msvideo" },
+        { "id": "mkv", "label": "MKV 视频", "icon": "🎬", "extensions": [".mkv"], "mime": "video/x-matroska" },
+        { "id": "flv", "label": "FLV 视频", "icon": "🎬", "extensions": [".flv"], "mime": "video/x-flv" },
+        { "id": "wmv", "label": "WMV 视频", "icon": "🎬", "extensions": [".wmv"], "mime": "video/x-ms-wmv" }
+      ]
+    },
+    {
+      "id": "audio",
+      "label": "🎵 音频",
+      "icon": "🎵",
+      "expanded": false,
+      "description": "音乐和音频播放",
+      "children": [
+        { "id": "mp3", "label": "MP3 音乐", "icon": "🎵", "extensions": [".mp3"], "mime": "audio/mpeg" },
+        { "id": "wav", "label": "WAV 音频", "icon": "🎵", "extensions": [".wav"], "mime": "audio/wav" },
+        { "id": "ogg", "label": "OGG 音频", "icon": "🎵", "extensions": [".ogg", ".oga"], "mime": "audio/ogg" },
+        { "id": "flac", "label": "FLAC 无损", "icon": "💿", "extensions": [".flac"], "mime": "audio/flac" },
+        { "id": "aac", "label": "AAC 音频", "icon": "🎵", "extensions": [".aac"], "mime": "audio/aac" },
+        { "id": "m4a", "label": "M4A 音频", "icon": "🎵", "extensions": [".m4a"], "mime": "audio/mp4" },
+        { "id": "opus", "label": "OPUS 音频", "icon": "🎵", "extensions": [".opus"], "mime": "audio/opus" },
+        { "id": "mid", "label": "MIDI 音乐", "icon": "🎹", "extensions": [".mid", ".midi"], "mime": "audio/midi" }
+      ]
+    },
+    {
+      "id": "archives",
+      "label": "📦 压缩包",
+      "icon": "📦",
+      "expanded": false,
+      "description": "解压和浏览压缩文件",
+      "children": [
+        { "id": "zip", "label": "ZIP 压缩", "icon": "📦", "extensions": [".zip"], "mime": "application/zip" },
+        { "id": "rar", "label": "RAR 压缩", "icon": "📦", "extensions": [".rar"], "mime": "application/x-rar-compressed" },
+        { "id": "7z", "label": "7Z 压缩", "icon": "📦", "extensions": [".7z"], "mime": "application/x-7z-compressed" },
+        { "id": "tar", "label": "TAR 归档", "icon": "📦", "extensions": [".tar"], "mime": "application/x-tar" },
+        { "id": "gz", "label": "GZIP 压缩", "icon": "📦", "extensions": [".gz", ".gzip"], "mime": "application/gzip" },
+        { "id": "bz2", "label": "BZIP2 压缩", "icon": "📦", "extensions": [".bz2"], "mime": "application/x-bzip2" },
+        { "id": "xz", "label": "XZ 压缩", "icon": "📦", "extensions": [".xz"], "mime": "application/x-xz" }
+      ]
+    },
+    {
+      "id": "ebooks",
+      "label": "📚 电子书",
+      "icon": "📚",
+      "expanded": false,
+      "description": "电子书阅读",
+      "children": [
+        { "id": "epub", "label": "EPUB 电子书", "icon": "📚", "extensions": [".epub"], "mime": "application/epub+zip" },
+        { "id": "mobi", "label": "MOBI 电子书", "icon": "📚", "extensions": [".mobi"], "mime": "application/x-mobipocket-ebook" },
+        { "id": "azw", "label": "AZW 亚马逊书", "icon": "📚", "extensions": [".azw", ".azw3", ".azw4"], "mime": "application/vnd.amazon.ebook" },
+        { "id": "fb2", "label": "FB2 小说", "icon": "📚", "extensions": [".fb2"], "mime": "application/xml" },
+        { "id": "cbz", "label": "CBZ 漫画", "icon": "📚", "extensions": [".cbz"], "mime": "application/vnd.comicbook+zip" }
+      ]
+    },
+    {
+      "id": "emails",
+      "label": "📧 邮件",
+      "icon": "📧",
+      "expanded": false,
+      "description": "邮件文件预览",
+      "children": [
+        { "id": "eml", "label": "EML 邮件", "icon": "📧", "extensions": [".eml"], "mime": "message/rfc822" },
+        { "id": "msg", "label": "MSG 邮件", "icon": "📧", "extensions": [".msg"], "mime": "application/vnd.ms-outlook" },
+        { "id": "mbox", "label": "MBOX 邮箱", "icon": "📨", "extensions": [".mbox"], "mime": "application/mbox" }
+      ]
+    },
+    {
+      "id": "3d",
+      "label": "🎲 3D模型",
+      "icon": "🎲",
+      "expanded": false,
+      "description": "3D 模型查看",
+      "children": [
+        { "id": "gltf", "label": "GLTF 模型", "icon": "🎲", "extensions": [".gltf"], "mime": "model/gltf+json" },
+        { "id": "glb", "label": "GLB 二进制", "icon": "🎲", "extensions": [".glb"], "mime": "model/gltf-binary" },
+        { "id": "fbx", "label": "FBX 模型", "icon": "🎲", "extensions": [".fbx"], "mime": "application/octet-stream" },
+        { "id": "obj", "label": "OBJ 模型", "icon": "🎲", "extensions": [".obj"], "mime": "model/obj" },
+        { "id": "stl", "label": "STL 打印件", "icon": "🎲", "extensions": [".stl"], "mime": "model/stl" },
+        { "id": "3ds", "label": "3DS 模型", "icon": "🎲", "extensions": [".3ds"], "mime": "application/x-3ds" },
+        { "id": "usd", "label": "USD 场景", "icon": "🎲", "extensions": [".usd", ".usda", ".usdc", ".usdz"], "mime": "model/vnd.usdz+zip" }
+      ]
+    },
+    {
+      "id": "cad",
+      "label": "📐 CAD图纸",
+      "icon": "📐",
+      "expanded": false,
+      "description": "CAD 工程图纸",
+      "children": [
+        { "id": "dwg", "label": "DWG CAD图", "icon": "📐", "extensions": [".dwg"], "mime": "image/vnd.dwg" },
+        { "id": "dxf", "label": "DXF 工程图", "icon": "📐", "extensions": [".dxf"], "mime": "image/vnd.dxf" },
+        { "id": "dwf", "label": "DWF 设计图", "icon": "📐", "extensions": [".dwf"], "mime": "model/vnd.dwf" },
+        { "id": "plt", "label": "PLT 绘图", "icon": "📐", "extensions": [".plt", ".hpgl"], "mime": "application/hp-gl" }
+      ]
+    },
+    {
+      "id": "gis",
+      "label": "🗺️ GIS地图",
+      "icon": "🗺️",
+      "expanded": false,
+      "description": "地理信息数据",
+      "children": [
+        { "id": "geojson", "label": "GeoJSON", "icon": "🗺️", "extensions": [".geojson", ".json"], "mime": "application/geo+json" },
+        { "id": "kml", "label": "KML 地图", "icon": "🗺️", "extensions": [".kml"], "mime": "application/vnd.google-earth.kml+xml" },
+        { "id": "gpx", "label": "GPX 轨迹", "icon": "🗺️", "extensions": [".gpx"], "mime": "application/gpx+xml" },
+        { "id": "topojson", "label": "TopoJSON", "icon": "🗺️", "extensions": [".topojson"], "mime": "application/json" }
+      ]
+    },
+    {
+      "id": "code",
+      "label": "💻 代码",
+      "icon": "💻",
+      "expanded": false,
+      "description": "源代码文件",
+      "children": [
+        { "id": "js", "label": "JavaScript", "icon": "📜", "extensions": [".js", ".mjs", ".cjs"], "mime": "text/javascript" },
+        { "id": "ts", "label": "TypeScript", "icon": "📜", "extensions": [".ts", ".tsx"], "mime": "text/typescript" },
+        { "id": "py", "label": "Python", "icon": "🐍", "extensions": [".py", ".pyw"], "mime": "text/x-python" },
+        { "id": "html", "label": "HTML", "icon": "🌐", "extensions": [".html", ".htm"], "mime": "text/html" },
+        { "id": "css", "label": "CSS", "icon": "🎨", "extensions": [".css", ".scss", ".sass", ".less"], "mime": "text/css" },
+        { "id": "java", "label": "Java", "icon": "☕", "extensions": [".java"], "mime": "text/x-java" },
+        { "id": "cpp", "label": "C/C++", "icon": "⚙️", "extensions": [".c", ".cpp", ".cc", ".cxx", ".h", ".hpp"], "mime": "text/x-c++src" },
+        { "id": "csharp", "label": "C#", "icon": "💜", "extensions": [".cs"], "mime": "text/x-csharp" },
+        { "id": "go", "label": "Go", "icon": "🐹", "extensions": [".go"], "mime": "text/x-go" },
+        { "id": "rust", "label": "Rust", "icon": "🦀", "extensions": [".rs"], "mime": "text/x-rust" },
+        { "id": "php", "label": "PHP", "icon": "🐘", "extensions": [".php"], "mime": "text/x-php" },
+        { "id": "ruby", "label": "Ruby", "icon": "💎", "extensions": [".rb"], "mime": "text/x-ruby" },
+        { "id": "swift", "label": "Swift", "icon": "🍎", "extensions": [".swift"], "mime": "text/x-swift" },
+        { "id": "kotlin", "label": "Kotlin", "icon": "🟣", "extensions": [".kt", ".kts"], "mime": "text/x-kotlin" },
+        { "id": "sql", "label": "SQL", "icon": "🗄️", "extensions": [".sql"], "mime": "text/x-sql" },
+        { "id": "sh", "label": "Shell", "icon": "🐚", "extensions": [".sh", ".bash", ".zsh"], "mime": "text/x-shellscript" },
+        { "id": "ps1", "label": "PowerShell", "icon": "💻", "extensions": [".ps1", ".psm1"], "mime": "text/x-powershell" }
+      ]
+    },
+    {
+      "id": "security",
+      "label": "🔐 加密解密",
+      "icon": "🔐",
+      "expanded": false,
+      "description": "文件加密解密功能",
+      "children": [
+        { "id": "encrypt", "label": "🔒 文件加密", "icon": "🔒", "action": "encrypt", "description": "使用密码加密文件" },
+        { "id": "decrypt", "label": "🔓 文件解密", "icon": "🔓", "action": "decrypt", "description": "解密已加密的文件" },
+        { "id": "hash", "label": "📊 哈希校验", "icon": "📊", "action": "hash", "description": "计算文件哈希值" },
+        { "id": "sign", "label": "✍️ 数字签名", "icon": "✍️", "action": "sign", "description": "文件数字签名" },
+        { "id": "verify", "label": "✅ 签名验证", "icon": "✅", "action": "verify", "description": "验证文件签名" }
+      ]
+    },
+    {
+      "id": "tools",
+      "label": "🛠️ 工具箱",
+      "icon": "🛠️",
+      "expanded": false,
+      "description": "实用工具",
+      "children": [
+        { "id": "convert", "label": "🔄 格式转换", "icon": "🔄", "action": "convert", "description": "文件格式转换" },
+        { "id": "compress", "label": "📦 文件压缩", "icon": "📦", "action": "compress", "description": "压缩文件减小体积" },
+        { "id": "extract", "label": "📂 提取内容", "icon": "📂", "action": "extract", "description": "从压缩包提取内容" },
+        { "id": "merge", "label": "🔗 合并文件", "icon": "🔗", "action": "merge", "description": "合并多个文件" },
+        { "id": "split", "label": "✂️ 分割文件", "icon": "✂️", "action": "split", "description": "大文件分割" },
+        { "id": "watermark", "label": "💧 添加水印", "icon": "💧", "action": "watermark", "description": "添加文字或图片水印" }
+      ]
+    },
+    {
+      "id": "file-manager",
+      "label": "📁 文件管理",
+      "icon": "📁",
+      "expanded": false,
+      "description": "基础文件管理",
+      "children": [
+        { "id": "all-files", "label": "所有文件", "icon": "📂", "action": "all-files" },
+        { "id": "folders", "label": "文件夹", "icon": "📁", "action": "folders" },
+        { "id": "recent", "label": "最近修改", "icon": "🕐", "action": "recent" },
+        { "id": "downloads", "label": "下载", "icon": "⬇️", "action": "downloads" },
+        { "id": "favorites", "label": "收藏", "icon": "⭐", "action": "favorites" },
+        { "id": "trash", "label": "回收站", "icon": "🗑️", "action": "trash" }
+      ]
+    }
+  ]
+}
