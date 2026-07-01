@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [
     vue()
   ],
-  base: '/workbuddy-open-file-viewer/',
+  base: process.env.VITE_BASE_PATH || '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src')
