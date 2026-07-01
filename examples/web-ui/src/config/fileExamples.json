@@ -1,0 +1,119 @@
+{
+  "version": "1.0.0",
+  "lastUpdate": "2026-07-01",
+  "categories": [
+    {
+      "id": "images",
+      "label": "图片素材",
+      "icon": "🖼️",
+      "examples": [
+        { "name": "product-photo.jpg", "size": 2457600, "type": "image/jpeg", "modified": "2026-06-15T10:30:00Z" },
+        { "name": "logo-transparent.png", "size": 512000, "type": "image/png", "modified": "2026-06-10T14:20:00Z" },
+        { "name": "animation.gif", "size": 3145728, "type": "image/gif", "modified": "2026-05-20T09:15:00Z" },
+        { "name": "hero-banner.webp", "size": 1024000, "type": "image/webp", "modified": "2026-06-25T16:45:00Z" },
+        { "name": "icon-sprite.svg", "size": 25600, "type": "image/svg+xml", "modified": "2026-06-01T11:00:00Z" }
+      ]
+    },
+    {
+      "id": "videos",
+      "label": "视频文件",
+      "icon": "🎬",
+      "examples": [
+        { "name": "product-demo.mp4", "size": 52428800, "type": "video/mp4", "modified": "2026-06-20T13:10:00Z" },
+        { "name": "tutorial.webm", "size": 41943040, "type": "video/webm", "modified": "2026-06-18T08:30:00Z" }
+      ]
+    },
+    {
+      "id": "audio",
+      "label": "音频文件",
+      "icon": "🎵",
+      "examples": [
+        { "name": "podcast-episode.mp3", "size": 10485760, "type": "audio/mpeg", "modified": "2026-06-22T17:00:00Z" },
+        { "name": "background-music.wav", "size": 20971520, "type": "audio/wav", "modified": "2026-06-12T17:00:00Z" }
+      ]
+    },
+    {
+      "id": "office",
+      "label": "Office 文档",
+      "icon": "📄",
+      "examples": [
+        { "name": "项目方案.docx", "size": 307200, "type": "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "modified": "2026-06-28T09:20:00Z" },
+        { "name": "数据分析.xlsx", "size": 512000, "type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "modified": "2026-06-27T14:35:00Z" },
+        { "name": "产品介绍.pptx", "size": 819200, "type": "application/vnd.openxmlformats-officedocument.presentationml.presentation", "modified": "2026-06-26T11:10:00Z" }
+      ]
+    },
+    {
+      "id": "pdf",
+      "label": "PDF 文档",
+      "icon": "📕",
+      "examples": [
+        { "name": "用户手册.pdf", "size": 5242880, "type": "application/pdf", "modified": "2026-06-25T10:00:00Z" },
+        { "name": "合同模板.pdf", "size": 1048576, "type": "application/pdf", "modified": "2026-06-20T16:30:00Z" }
+      ]
+    },
+    {
+      "id": "ebooks",
+      "label": "电子书",
+      "icon": "📚",
+      "examples": [
+        { "name": "技术指南.epub", "size": 2097152, "type": "application/epub+zip", "modified": "2026-06-15T12:45:00Z" }
+      ]
+    },
+    {
+      "id": "archives",
+      "label": "压缩包",
+      "icon": "📦",
+      "examples": [
+        { "name": "source-code.zip", "size": 10485760, "type": "application/zip", "modified": "2026-06-29T08:20:00Z" },
+        { "name": "backup-2026.rar", "size": 52428800, "type": "application/x-rar-compressed", "modified": "2026-06-28T20:15:00Z" }
+      ]
+    },
+    {
+      "id": "code",
+      "label": "代码文件",
+      "icon": "💻",
+      "examples": [
+        { "name": "app.js", "size": 12288, "type": "application/javascript", "modified": "2026-06-29T15:30:00Z" },
+        { "name": "utils.py", "size": 8192, "type": "text/x-python", "modified": "2026-06-29T14:20:00Z" },
+        { "name": "index.html", "size": 4096, "type": "text/html", "modified": "2026-06-28T10:10:00Z" },
+        { "name": "config.json", "size": 2048, "type": "application/json", "modified": "2026-06-27T09:45:00Z" }
+      ]
+    },
+    {
+      "id": "3d",
+      "label": "3D 模型",
+      "icon": "🎲",
+      "examples": [
+        { "name": "chair.gltf", "size": 1048576, "type": "model/gltf+json", "modified": "2026-06-24T13:25:00Z" },
+        { "name": "building.obj", "size": 5242880, "type": "model/obj", "modified": "2026-06-23T16:40:00Z" }
+      ]
+    },
+    {
+      "id": "cad",
+      "label": "CAD 图纸",
+      "icon": "📐",
+      "examples": [
+        { "name": "floor-plan.dwg", "size": 3145728, "type": "application/acad", "modified": "2026-06-22T11:50:00Z" },
+        { "name": "mechanical.dxf", "size": 2097152, "type": "application/dxf", "modified": "2026-06-21T10:15:00Z" }
+      ]
+    },
+    {
+      "id": "gis",
+      "label": "GIS 地图",
+      "icon": "🗺️",
+      "examples": [
+        { "name": "beijing.geojson", "size": 524288, "type": "application/geo+json", "modified": "2026-06-20T14:00:00Z" },
+        { "name": "route.kml", "size": 102400, "type": "application/vnd.google-earth.kml+xml", "modified": "2026-06-19T09:30:00Z" }
+      ]
+    },
+    {
+      "id": "email",
+      "label": "邮件文件",
+      "icon": "📧",
+      "examples": [
+        { "name": "inquiry.eml", "size": 51200, "type": "message/rfc822", "modified": "2026-06-28T14:20:00Z" },
+        { "name": "newsletter.msg", "size": 102400, "type": "application/vnd.ms-outlook", "modified": "2026-06-27T14:20:00Z" }
+      ]
+    }
+  ]
+}
