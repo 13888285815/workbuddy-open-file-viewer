@@ -366,14 +366,28 @@ const handleEditorClose = () => {
 const isFileEditable = computed(() => {
   if (!previewNode.value?.file) return false;
   const name = previewNode.value.name.toLowerCase();
-  const editableExts = [
+  
+  // 文本格式：直接编辑
+  const textExts = [
     ".txt", ".md", ".markdown", ".json", ".js", ".jsx", ".ts", ".tsx",
     ".css", ".scss", ".html", ".htm", ".xml", ".svg", ".yaml", ".yml",
     ".toml", ".ini", ".cfg", ".conf", ".env", ".sh", ".py", ".rb",
     ".java", ".kt", ".swift", ".c", ".cpp", ".go", ".rs", ".sql",
     ".log", ".gitignore", ".vue", ".svelte"
   ];
-  return editableExts.some(ext => name.endsWith(ext));
+  
+  // PDF/Office 格式：支持文本提取编辑
+  const extractableExts = [
+    ".pdf",           // PDF → 文本提取
+    ".doc", ".docx",  // Word → 文本提取
+    ".xls", ".xlsx",  // Excel → CSV/文本提取
+    ".ppt", ".pptx",  // PowerPoint → 文本提取
+    ".odt", ".odf",   // OpenDocument → 文本提取
+    ".rtf"            // RTF → 文本提取
+  ];
+  
+  return textExts.some(ext => name.endsWith(ext)) || 
+         extractableExts.some(ext => name.endsWith(ext));
 });
 
 const handleSaveAs = () => {

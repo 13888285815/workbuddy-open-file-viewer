@@ -64,6 +64,22 @@ const TEXT_EXTENSIONS = [
   ".eslintrc", ".babelrc", ".webpack", ".graphql", ".vue", ".svelte"
 ];
 
+// PDF/Office formats that support text extraction
+const EXTRACTABLE_EXTENSIONS = [
+  ".pdf",           // PDF → 文本提取
+  ".doc", ".docx",  // Word → 文本提取
+  ".xls", ".xlsx",  // Excel → CSV/文本提取
+  ".ppt", ".pptx",  // PowerPoint → 文本提取
+  ".odt", ".odf",   // OpenDocument → 文本提取
+  ".rtf"            // RTF → 文本提取
+];
+
+// Check if file needs text extraction
+const needsExtraction = computed(() => {
+  const name = props.file?.name?.toLowerCase() || "";
+  return EXTRACTABLE_EXTENSIONS.some(ext => name.endsWith(ext));
+});
+
 // Check if file is editable text
 const isEditable = computed(() => {
   const file = props.file;
@@ -74,12 +90,16 @@ const isEditable = computed(() => {
     const type = file.file.type;
     const name = file.name.toLowerCase();
     
-    // Check MIME type
+    // Check MIME type for text files
     if (type && TEXT_MIME_TYPES.some(t => type.startsWith(t) || type === t)) {
       return true;
     }
-    // Check extension
+    // Check extension for text files
     if (TEXT_EXTENSIONS.some(ext => name.endsWith(ext))) {
+      return true;
+    }
+    // PDF/Office formats support text extraction
+    if (EXTRACTABLE_EXTENSIONS.some(ext => name.endsWith(ext))) {
       return true;
     }
     // Empty MIME type usually means text
@@ -104,6 +124,21 @@ const loadFile = async () => {
   
   try {
     const file = props.file.file;
+    const name = props.file.name.toLowerCase();
+    
+    // PDF: 提取文本
+    if (name.endsWith(".pdf")) {
+      await loadPdfText(file);
+      return;
+    }
+    
+    // Office formats: 简单提取文本（实际应用需要专业库）
+    if (EXTRACTABLE_EXTENSIONS.some(ext => name.endsWith(ext))) {
+      await loadOfficeText(file, name);
+      return;
+    }
+    
+    // 文本文件：直接读取
     const reader = new FileReader();
     
     reader.onload = (e) => {
@@ -125,6 +160,128 @@ const loadFile = async () => {
   } catch (err) {
     errorMsg.value = "加载文件内容失败";
     console.error("Load file error:", err);
+  }
+};
+
+// PDF 文本提取（使用 PDF.js）
+const loadPdfText = async (file: File) => {
+  try {
+    errorMsg.value = "正在提取 PDF 文本...";
+    
+    // 使用动态导入 PDF.js
+    const pdfjsLib = await import("pdfjs-dist");
+    pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+    
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = `# PDF 文本提取: ${props.file.name}\n\n`;
+    fullText += `> 共 ${pdf.numPages} 页\n\n---\n\n`;
+    
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item: any) => item.str)
+        .join(" ");
+      
+      fullText += `## 第 ${i} 页\n\n${pageText}\n\n`;
+    }
+    
+    content.value = fullText;
+    originalContent.value = fullText;
+    isModified.value = false;
+    errorMsg.value = "";
+    updateLineNumbers();
+  } catch (err) {
+    console.error("PDF extraction error:", err);
+    errorMsg.value = "PDF 文本提取失败: " + (err instanceof Error ? err.message : "未知错误");
+    
+    // 回退：显示提示
+    content.value = `# PDF 文件: ${props.file.name}\n\n无法自动提取文本。请使用专业的 PDF 编辑器。`;
+    originalContent.value = content.value;
+    updateLineNumbers();
+  }
+};
+
+// Office 文件文本提取（简化版）
+const loadOfficeText = async (file: File, name: string) => {
+  try {
+    errorMsg.value = "正在提取文档文本...";
+    
+    // DOCX/XLSX/PPTX 是 ZIP 格式，可提取 XML
+    const ext = EXTRACTABLE_EXTENSIONS.find(e => name.endsWith(e));
+    
+    if (ext === ".docx" || ext === ".xlsx" || ext === ".pptx") {
+      // 使用 JSZip 提取文本（实际应用需要更复杂的解析）
+      const JSZip = (await import("jszip")).default;
+      const zip = await JSZip.loadAsync(file);
+      
+      let extractedText = `# 文档文本提取: ${props.file.name}\n\n`;
+      
+      // DOCX: 提取 word/document.xml
+      if (ext === ".docx") {
+        const docXml = await zip.file("word/document.xml")?.async("text");
+        if (docXml) {
+          // 简单提取 <w:t> 标签中的文本
+          const textMatches = docXml.match(/<w:t[^>]*>([^<]*)<\/w:t>/g);
+          if (textMatches) {
+            const texts = textMatches.map(m => m.replace(/<[^>]*>/g, "")).join(" ");
+            extractedText += texts;
+          }
+        }
+      }
+      // XLSX: 提取 xl/sharedStrings.xml
+      else if (ext === ".xlsx") {
+        const sharedStrings = await zip.file("xl/sharedStrings.xml")?.async("text");
+        if (sharedStrings) {
+          const textMatches = sharedStrings.match(/<t[^>]*>([^<]*)<\/t>/g);
+          if (textMatches) {
+            const texts = textMatches.map(m => m.replace(/<[^>]*>/g, "")).join("\n");
+            extractedText += texts;
+          }
+        }
+      }
+      // PPTX: 提取 ppt/slides/*.xml
+      else if (ext === ".pptx") {
+        const slideFiles = Object.keys(zip.files).filter(f => f.match(/ppt\/slides\/slide\d+\.xml/));
+        for (const slideFile of slideFiles) {
+          const slideXml = await zip.file(slideFile)?.async("text");
+          if (slideXml) {
+            const textMatches = slideXml.match(/<a:t>([^<]*)<\/a:t>/g);
+            if (textMatches) {
+              extractedText += textMatches.map(m => m.replace(/<[^>]*>/g, "")).join(" ") + "\n\n";
+            }
+          }
+        }
+      }
+      
+      content.value = extractedText;
+      originalContent.value = extractedText;
+      isModified.value = false;
+      errorMsg.value = "";
+      updateLineNumbers();
+    } else {
+      // 其他格式：尝试直接读取文本
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const text = e.target?.result as string;
+        content.value = `# 文档内容: ${props.file.name}\n\n${text}`;
+        originalContent.value = content.value;
+        isModified.value = false;
+        errorMsg.value = "";
+        updateLineNumbers();
+      };
+      reader.readAsText(file);
+    }
+  } catch (err) {
+    console.error("Office extraction error:", err);
+    errorMsg.value = "文档文本提取失败";
+    
+    // 回退：显示提示
+    content.value = `# 文档文件: ${props.file.name}\n\n无法自动提取文本。请使用专业的文档编辑器。`;
+    originalContent.value = content.value;
+    updateLineNumbers();
   }
 };
 
@@ -244,7 +401,69 @@ defineExpose({
     <div v-else-if="!isEditable" class="editor-not-editable">
       <AlertCircleIcon :size="24" />
       <h4>此文件类型不支持编辑</h4>
-      <p>仅支持文本文件（txt, md, json, js, css, html 等）</p>
+      <p>仅支持文本文件（txt, md, json, js, css, html 等）和可提取文本的文档（PDF, Word, Excel, PPT）</p>
+    </div>
+    
+    <!-- Extraction mode notice -->
+    <div v-else-if="needsExtraction" class="editor-main">
+      <!-- Status bar -->
+      <div class="editor-status">
+        <div class="editor-status-left">
+          <span class="editor-filename">{{ file.name }}</span>
+          <span class="editor-extract-badge">文本提取模式</span>
+        </div>
+        <div class="editor-status-right">
+          <span class="editor-info">提取的文本可编辑并保存为新文件</span>
+        </div>
+      </div>
+      
+      <!-- Editor area with line numbers -->
+      <div class="editor-content">
+        <!-- Line numbers -->
+        <div class="line-numbers" aria-hidden="true">
+          <div
+            v-for="num in lineNumbers"
+            :key="num"
+            class="line-number"
+          >{{ num }}</div>
+        </div>
+        
+        <!-- Textarea -->
+        <textarea
+          ref="textareaRef"
+          v-model="content"
+          class="editor-textarea"
+          spellcheck="false"
+          autocomplete="off"
+          autocorrect="off"
+          autocapitalize="off"
+          :placeholder="errorMsg || '正在提取文本...'"
+        ></textarea>
+      </div>
+      
+      <!-- Action bar -->
+      <div class="editor-actions">
+        <button
+          class="editor-btn secondary"
+          @click="handleCancel"
+          title="放弃修改 (Esc)"
+        >
+          <RotateCcwIcon :size="16" />
+          <span>取消</span>
+        </button>
+        <button
+          class="editor-btn primary"
+          :class="{ saving: isSaving, success: saveSuccess }"
+          :disabled="!isModified || isSaving"
+          @click="handleSave"
+          title="保存为新文件 (Ctrl+S)"
+        >
+          <SaveIcon v-if="!isSaving && !saveSuccess" :size="16" />
+          <span v-if="isSaving" class="saving-spinner"></span>
+          <CheckIcon v-if="saveSuccess" :size="16" />
+          <span>{{ isSaving ? "保存中..." : saveSuccess ? "已保存" : "另存为" }}</span>
+        </button>
+      </div>
     </div>
 
     <!-- Editor -->
@@ -535,6 +754,15 @@ defineExpose({
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+.editor-extract-badge {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: var(--text-xs);
+  font-weight: 500;
 }
 
 /* Dark theme adjustments */
