@@ -61,6 +61,7 @@ import Sidebar from "./components/Sidebar.vue";
 import StatusBar from "./components/StatusBar.vue";
 import PreviewToolbar from "./components/PreviewToolbar.vue";
 import FileConverter from "./components/FileConverter.vue";
+import InlineEditor from "./components/InlineEditor.vue";
 import type { TreeNode } from "./stores/fileStore";
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -112,6 +113,11 @@ const previewRotation = ref(0);
 const previewCurrentPage = ref(1);
 const previewTotalPages = ref(0);
 const showConverter = ref(false);
+
+// ─── Edit Mode State ──────────────────────────────────────────────────────────
+type ViewMode = "preview" | "edit";
+const currentViewMode = ref<ViewMode>("preview");
+const isFileModified = ref(false);
 
 // ─── File inputs ──────────────────────────────────────────────────────────────
 
@@ -337,9 +343,38 @@ const handleNextPage = () => {
 };
 
 const handleEdit = () => {
-  // TODO: Implement edit functionality
-  console.log("Edit file:", previewNode.value?.name);
+  // Switch to edit mode if file is selected
+  if (previewNode.value?.type === "file") {
+    currentViewMode.value = "edit";
+    isFileModified.value = false;
+  }
 };
+
+// Handle file save from editor
+const handleFileSave = (content: string) => {
+  console.log("File saved:", previewNode.value?.name, "Content length:", content.length);
+  isFileModified.value = false;
+  // File is already updated in InlineEditor component
+};
+
+// Handle cancel/close editor
+const handleEditorClose = () => {
+  currentViewMode.value = "preview";
+};
+
+// Check if file is editable
+const isFileEditable = computed(() => {
+  if (!previewNode.value?.file) return false;
+  const name = previewNode.value.name.toLowerCase();
+  const editableExts = [
+    ".txt", ".md", ".markdown", ".json", ".js", ".jsx", ".ts", ".tsx",
+    ".css", ".scss", ".html", ".htm", ".xml", ".svg", ".yaml", ".yml",
+    ".toml", ".ini", ".cfg", ".conf", ".env", ".sh", ".py", ".rb",
+    ".java", ".kt", ".swift", ".c", ".cpp", ".go", ".rs", ".sql",
+    ".log", ".gitignore", ".vue", ".svelte"
+  ];
+  return editableExts.some(ext => name.endsWith(ext));
+});
 
 const handleSaveAs = () => {
   // TODO: Implement save as functionality
@@ -523,6 +558,9 @@ watch(
     previewRotation.value = 0;
     previewCurrentPage.value = 1;
     previewTotalPages.value = 0;
+    // Always switch back to preview mode when file changes
+    currentViewMode.value = "preview";
+    isFileModified.value = false;
   }
 );
 </script>
@@ -623,12 +661,33 @@ watch(
         <!-- File info bar -->
         <div v-if="store.selectedFile" class="file-info-bar">
           <span class="file-info-name">{{ store.selectedFile.name }}</span>
+          <span v-if="isFileModified" class="file-info-modified">●</span>
           <span class="file-info-sep">·</span>
           <span class="file-info-meta">{{ store.getMimeDescription(store.selectedFile.mimeType) }}</span>
           <span v-if="store.selectedFile.size" class="file-info-sep">·</span>
           <span v-if="store.selectedFile.size" class="file-info-meta">{{ store.formatFileSize(store.selectedFile.size) }}</span>
           <span v-if="store.selectedFile.modified" class="file-info-sep">·</span>
           <span v-if="store.selectedFile.modified" class="file-info-meta">{{ store.formatDate(store.selectedFile.modified) }}</span>
+        </div>
+
+        <!-- View Mode Tab Bar (only show for files) -->
+        <div v-if="previewNode?.type === 'file' && previewNode.file" class="view-mode-tabs">
+          <button
+            :class="['view-tab', { active: currentViewMode === 'preview' }]"
+            @click="currentViewMode = 'preview'"
+          >
+            <EyeIcon :size="15" />
+            <span>预览</span>
+          </button>
+          <button
+            :class="['view-tab', { active: currentViewMode === 'edit' }]"
+            :disabled="!isFileEditable"
+            :title="isFileEditable ? '编辑文件' : '此文件类型不支持编辑'"
+            @click="handleEdit"
+          >
+            <EditIcon :size="15" />
+            <span>编辑</span>
+          </button>
         </div>
 
         <!-- Main Content with Converter Panel -->
@@ -651,9 +710,17 @@ watch(
               <p class="empty-hint">从左侧文件列表选择一个文件，或拖放文件到此处</p>
             </div>
 
-            <!-- OpenFileViewer -->
+            <!-- Inline Editor (编辑模式) -->
+            <InlineEditor
+              v-else-if="currentViewMode === 'edit' && previewNode.file"
+              :file="previewNode"
+              @save="handleFileSave"
+              @cancel="handleEditorClose"
+            />
+
+            <!-- OpenFileViewer (预览模式) -->
             <OpenFileViewer
-              v-else-if="previewNode.file"
+              v-else-if="previewNode.file && currentViewMode === 'preview'"
               :file="previewNode.file"
               :file-name="previewNode.name"
               :mime-type="previewNode.mimeType"
@@ -1022,8 +1089,53 @@ watch(
   max-width: 300px;
 }
 
+.file-info-modified {
+  color: var(--color-warning);
+  font-size: 10px;
+}
+
 .file-info-sep { color: var(--text-muted); }
 .file-info-meta { color: var(--text-muted); }
+
+/* View Mode Tabs */
+.view-mode-tabs {
+  display: flex;
+  padding: 6px 12px;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.view-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border: none;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.view-tab:hover:not(:disabled) {
+  background: var(--bg-tertiary);
+  color: var(--text-primary);
+}
+
+.view-tab.active {
+  background: var(--primary);
+  color: white;
+}
+
+.view-tab:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
 
 /* Viewer container */
 .viewer-container {
