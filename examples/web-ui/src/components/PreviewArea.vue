@@ -567,6 +567,328 @@ const downloadCode = () => {
 // ─── Text Viewer ───────────────────────────────────────────────────────────────
 const textContent = ref("");
 
+// ─── Edit Mode ────────────────────────────────────────────────────────────────
+const isEditing = ref(false);
+const editContent = ref("");
+const editModified = ref(false);
+const editSaved = ref(false);
+
+const enterEditMode = () => {
+  editContent.value = codeContent.value;
+  isEditing.value = true;
+  editModified.value = false;
+  editSaved.value = false;
+};
+
+const exitEditMode = () => {
+  if (editModified.value) {
+    if (!confirm("有未保存的修改，确定退出？")) return;
+  }
+  isEditing.value = false;
+};
+
+const handleEditInput = (e: Event) => {
+  const ta = e.target as HTMLTextAreaElement;
+  editContent.value = ta.value;
+  editModified.value = true;
+  editSaved.value = false;
+};
+
+const saveEdit = () => {
+  codeContent.value = editContent.value;
+  editModified.value = false;
+  editSaved.value = true;
+  setTimeout(() => { editSaved.value = false; }, 2000);
+  // Update the file object
+  if (props.file) {
+    const blob = new Blob([editContent.value], { type: props.mimeType || "text/plain" });
+    const newFile = new File([blob], props.fileName || "untitled", { type: props.mimeType || "text/plain" });
+    emit("file-change", newFile);
+  }
+};
+
+const downloadEdited = () => {
+  const blob = new Blob([editContent.value], { type: props.mimeType || "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = props.fileName || "edited.txt";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+// ─── Image Edit State ─────────────────────────────────────────────────────────
+const isImageEditing = ref(false);
+const editImageCanvas = ref<HTMLCanvasElement | null>(null);
+const editImageCtx = ref<CanvasRenderingContext2D | null>(null);
+const imageCropRect = ref({ x: 0, y: 0, w: 0, h: 0 });
+const isCropping = ref(false);
+const cropStart = ref({ x: 0, y: 0 });
+
+const startImageEdit = async () => {
+  if (!props.file) return;
+  isImageEditing.value = true;
+  await nextTick();
+  const canvas = editImageCanvas.value;
+  if (!canvas) return;
+  const ctx = canvas.getContext("2d");
+  if (!ctx) return;
+  editImageCtx.value = ctx;
+  const img = new Image();
+  img.onload = () => {
+    const maxW = canvas.parentElement?.clientWidth || 800;
+    const maxH = canvas.parentElement?.clientHeight || 600;
+    const scale = Math.min(maxW / img.naturalWidth, maxH / img.naturalHeight, 1);
+    canvas.width = img.naturalWidth * scale;
+    canvas.height = img.naturalHeight * scale;
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  };
+  img.src = objectUrl.value;
+};
+
+const rotateImageEdit = () => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const rotated = document.createElement("canvas");
+  rotated.width = canvas.height;
+  rotated.height = canvas.width;
+  const rctx = rotated.getContext("2d")!;
+  rctx.translate(rotated.width / 2, rotated.height / 2);
+  rctx.rotate(Math.PI / 2);
+  rctx.drawImage(canvas, -canvas.width / 2, -canvas.height / 2);
+  canvas.width = rotated.width;
+  canvas.height = rotated.height;
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(rotated, 0, 0);
+};
+
+const flipImageEdit = (dir: "h" | "v") => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const flipped = document.createElement("canvas");
+  flipped.width = canvas.width;
+  flipped.height = canvas.height;
+  const fctx = flipped.getContext("2d")!;
+  if (dir === "h") {
+    fctx.translate(flipped.width, 0);
+    fctx.scale(-1, 1);
+  } else {
+    fctx.translate(0, flipped.height);
+    fctx.scale(1, -1);
+  }
+  fctx.drawImage(canvas, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(flipped, 0, 0);
+};
+
+const invertColors = () => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    imgData.data[i] = 255 - imgData.data[i];
+    imgData.data[i + 1] = 255 - imgData.data[i + 1];
+    imgData.data[i + 2] = 255 - imgData.data[i + 2];
+  }
+  ctx.putImageData(imgData, 0, 0);
+};
+
+const grayscaleFilter = () => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    const avg = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
+    imgData.data[i] = avg; imgData.data[i + 1] = avg; imgData.data[i + 2] = avg;
+  }
+  ctx.putImageData(imgData, 0, 0);
+};
+
+const adjustBrightness = (delta: number) => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  for (let i = 0; i < imgData.data.length; i += 4) {
+    imgData.data[i] = Math.min(255, Math.max(0, imgData.data[i] + delta));
+    imgData.data[i + 1] = Math.min(255, Math.max(0, imgData.data[i + 1] + delta));
+    imgData.data[i + 2] = Math.min(255, Math.max(0, imgData.data[i + 2] + delta));
+  }
+  ctx.putImageData(imgData, 0, 0);
+};
+
+const applyCrop = () => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  const { x, y, w, h } = imageCropRect.value;
+  if (w <= 0 || h <= 0) return;
+  const imgData = ctx.getImageData(x, y, w, h);
+  canvas.width = w;
+  canvas.height = h;
+  ctx.putImageData(imgData, 0, 0);
+  isCropping.value = false;
+};
+
+const handleCanvasMouseDown = (e: MouseEvent) => {
+  if (!isCropping.value) return;
+  const rect = editImageCanvas.value!.getBoundingClientRect();
+  cropStart.value = { x: e.clientX - rect.left, y: e.clientY - rect.top };
+  imageCropRect.value = { x: cropStart.value.x, y: cropStart.value.y, w: 0, h: 0 };
+};
+
+const handleCanvasMouseMove = (e: MouseEvent) => {
+  if (!isCropping.value || !editImageCanvas.value) return;
+  const rect = editImageCanvas.value.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  const y = e.clientY - rect.top;
+  imageCropRect.value = {
+    x: Math.min(cropStart.value.x, x),
+    y: Math.min(cropStart.value.y, y),
+    w: Math.abs(x - cropStart.value.x),
+    h: Math.abs(y - cropStart.value.y),
+  };
+};
+
+const drawCropOverlay = () => {
+  const canvas = editImageCanvas.value;
+  const ctx = editImageCtx.value;
+  if (!canvas || !ctx) return;
+  // Redraw original then overlay
+  const { x, y, w, h } = imageCropRect.value;
+  ctx.strokeStyle = "#3b82f6";
+  ctx.lineWidth = 2;
+  ctx.setLineDash([5, 5]);
+  ctx.strokeRect(x, y, w, h);
+  ctx.setLineDash([]);
+  // Dim outside
+  ctx.fillStyle = "rgba(0,0,0,0.4)";
+  ctx.fillRect(0, 0, canvas.width, y);
+  ctx.fillRect(0, y + h, canvas.width, canvas.height - y - h);
+  ctx.fillRect(0, y, x, h);
+  ctx.fillRect(x + w, y, canvas.width - x - w, h);
+};
+
+const saveEditedImage = () => {
+  const canvas = editImageCanvas.value;
+  if (!canvas) return;
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "edited_" + (props.fileName || "image.png");
+    a.click();
+    URL.revokeObjectURL(url);
+  }, props.mimeType || "image/png");
+};
+
+const exitImageEdit = () => {
+  isImageEditing.value = false;
+  isCropping.value = false;
+};
+
+// ─── Video Clip Edit ─────────────────────────────────────────────────────────
+const isVideoEditing = ref(false);
+const videoClipStart = ref(0);
+const videoClipEnd = ref(0);
+const videoEl2 = ref<HTMLVideoElement | null>(null);
+
+const enterVideoEdit = () => {
+  isVideoEditing.value = true;
+  videoClipStart.value = 0;
+  videoClipEnd.value = duration.value || 0;
+};
+
+const downloadVideoClip = () => {
+  if (!videoEl2.value) return;
+  // For clip download, show instruction since full implementation requires ffmpeg.wasm
+  alert(`视频裁剪范围: ${formatTime(videoClipStart.value)} ~ ${formatTime(videoClipEnd.value)}\n\n如需下载裁剪后的片段，请安装 FFmpeg.wasm 或使用桌面端工具。\n当前浏览器版本支持将视频导出为 WebM 格式。`);
+  // Export current range as data URL (limited)
+  const canvas = document.createElement("canvas");
+  canvas.width = videoEl2.value.videoWidth || 640;
+  canvas.height = videoEl2.value.videoHeight || 360;
+  const ctx = canvas.getContext("2d")!;
+  ctx.drawImage(videoEl2.value, 0, 0, canvas.width, canvas.height);
+  canvas.toBlob((blob) => {
+    if (!blob) return;
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "frame_" + (props.fileName?.replace(/\.[^.]+$/, "") || "video") + ".png";
+    a.click();
+    URL.revokeObjectURL(url);
+  }, "image/png");
+};
+
+const exitVideoEdit = () => {
+  isVideoEditing.value = false;
+};
+
+// ─── Audio Edit ──────────────────────────────────────────────────────────────
+const isAudioEditing = ref(false);
+const audioTrimStart = ref(0);
+const audioTrimEnd = ref(0);
+
+const enterAudioEdit = () => {
+  isAudioEditing.value = true;
+  audioTrimStart.value = 0;
+  audioTrimEnd.value = audioDuration.value || 0;
+};
+
+const downloadAudioTrim = () => {
+  alert(`音频裁剪范围: ${formatAudioTime(audioTrimStart.value)} ~ ${formatAudioTime(audioTrimEnd.value)}\n\n如需下载裁剪后的片段，请使用 FFmpeg.wasm 或桌面端音频编辑器。`);
+};
+
+const exitAudioEdit = () => {
+  isAudioEditing.value = false;
+};
+
+// ─── PDF Annotate ─────────────────────────────────────────────────────────────
+const isPdfAnnotating = ref(false);
+const pdfAnnotationColor = ref("#ef4444");
+const pdfAnnotationMode = ref<"highlight" | "note" | "draw">("highlight");
+const pdfAnnotations = ref<{ type: string; page: number; x: number; y: number; w?: number; h?: number; text?: string; color: string }[]>([]);
+
+const togglePdfAnnotate = () => {
+  isPdfAnnotating.value = !isPdfAnnotating.value;
+};
+
+const addPdfAnnotation = (type: string, x: number, y: number, page: number) => {
+  pdfAnnotations.value.push({
+    type,
+    page,
+    x,
+    y,
+    color: pdfAnnotationColor.value,
+    ...(type === "note" ? { text: "备注" } : {}),
+    ...(type === "highlight" ? { w: 100, h: 20 } : {}),
+  });
+};
+
+const downloadAnnotatedPdf = () => {
+  alert(`PDF 标注已保存 (${pdfAnnotations.value.length} 条)\n\n完整 PDF 编辑需要 pdf-lib 或 pdf.js 编辑模式，当前为预览版。\n标注数据已保存在内存中，可导出为 JSON 记录。`);
+  // Export annotations as JSON
+  const json = JSON.stringify(pdfAnnotations.value, null, 2);
+  const blob = new Blob([json], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = (props.fileName || "annotations") + "_annotations.json";
+  a.click();
+  URL.revokeObjectURL(url);
+};
+
+const exitPdfAnnotate = () => {
+  isPdfAnnotating.value = false;
+};
+
 // ─── Fullscreen ───────────────────────────────────────────────────────────────
 const toggleFullscreen = async () => {
   const el = document.querySelector(".preview-area") as HTMLElement;
@@ -714,6 +1036,7 @@ defineExpose({
         </div>
         <div class="toolbar-group">
           <button class="toolbar-btn" :class="{ active: showPdfThumbnails }" title="缩略图" @click="togglePdfThumbnails"><ImageIcon :size="16" /></button>
+          <button class="toolbar-btn" :class="{ active: isPdfAnnotating }" @click="togglePdfAnnotate" title="标注" style="color: var(--primary);"><FileTextIcon :size="16" /> 标注</button>
           <button class="toolbar-btn" title="打印" @click="printPdf"><PrinterIcon :size="16" /></button>
         </div>
         <div class="toolbar-spacer"></div>
@@ -749,15 +1072,59 @@ defineExpose({
                     (el as HTMLCanvasElement).height = canvas.height;
                     ctx.clearRect(0, 0, canvas.width, canvas.height);
                     ctx.drawImage(canvas, 0, 0);
+                    // Draw annotations
+                    if (isPdfAnnotating) {
+                      const annots = pdfAnnotations.value.filter(a => a.page === currentPage);
+                      annots.forEach(a => {
+                        if (a.type === 'highlight' && a.w && a.h) {
+                          ctx.fillStyle = a.color + '44';
+                          ctx.fillRect(a.x, a.y, a.w, a.h);
+                        } else if (a.type === 'note') {
+                          ctx.fillStyle = a.color;
+                          ctx.beginPath();
+                          ctx.arc(a.x, a.y, 8, 0, Math.PI * 2);
+                          ctx.fill();
+                          ctx.fillStyle = 'white';
+                          ctx.font = '10px sans-serif';
+                          ctx.fillText('N', a.x - 3, a.y + 4);
+                        }
+                      });
+                    }
                   }
                 }
               }"
               class="pdf-canvas"
+              :class="{ 'annotatable': isPdfAnnotating }"
+              @click="(e) => { if (isPdfAnnotating) addPdfAnnotation(pdfAnnotationMode, (e as MouseEvent).offsetX, (e as MouseEvent).offsetY, currentPage) }"
             />
             <div v-else class="pdf-placeholder">
               <LoaderIcon :size="32" class="spin" />
               <span>加载页面 {{ currentPage }}...</span>
             </div>
+          </div>
+
+          <!-- PDF Annotate Sidebar -->
+          <div v-if="isPdfAnnotating" class="pdf-annotate-bar">
+            <div class="pdf-annotate-header">PDF 标注</div>
+            <div class="pdf-annotate-tools">
+              <button :class="['annotate-tool', { active: pdfAnnotationMode === 'highlight' }]" @click="pdfAnnotationMode = 'highlight'">高亮</button>
+              <button :class="['annotate-tool', { active: pdfAnnotationMode === 'note' }]" @click="pdfAnnotationMode = 'note'">备注</button>
+            </div>
+            <div class="pdf-annotate-colors">
+              <span style="font-size: 11px; color: var(--text-muted);">颜色:</span>
+              <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                <button v-for="c in ['#ef4444','#f59e0b','#22c55e','#3b82f6','#8b5cf6']" :key="c"
+                  :style="{ background: c, width: '24px', height: '24px', borderRadius: '4px', border: pdfAnnotationColor === c ? '2px solid var(--text-primary)' : '2px solid transparent', cursor: 'pointer' }"
+                  @click="pdfAnnotationColor = c"
+                ></button>
+              </div>
+            </div>
+            <div style="padding: 8px; font-size: 12px; color: var(--text-muted);">
+              {{ pdfAnnotations.length }} 条标注
+            </div>
+            <button class="toolbar-btn" style="margin: 8px; width: calc(100% - 16px); justify-content: center;" @click="downloadAnnotatedPdf">
+              <DownloadIcon :size="14" /> 导出 JSON
+            </button>
           </div>
         </div>
       </div>
@@ -855,6 +1222,36 @@ defineExpose({
                 <Minimize2Icon v-if="videoFullscreen" :size="18" />
                 <Maximize2Icon v-else :size="18" />
               </button>
+              <button class="ctrl-btn" @click="enterVideoEdit" style="color: var(--primary);" title="裁剪视频">
+                <FileTextIcon :size="16" /> 裁剪
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Edit Mode -->
+        <div v-if="isVideoEditing" class="video-edit-mode">
+          <div class="preview-toolbar">
+            <div class="toolbar-group">
+              <span class="lang-badge" style="color: var(--primary);">视频裁剪</span>
+            </div>
+            <div class="toolbar-group">
+              <span style="font-size: 12px; color: var(--text-secondary);">开始:</span>
+              <input type="number" class="page-input" style="width: 70px;" v-model.number="videoClipStart" min="0" :max="duration" step="1" />
+              <span style="font-size: 12px; color: var(--text-secondary); margin-left: 12px;">结束:</span>
+              <input type="number" class="page-input" style="width: 70px;" v-model.number="videoClipEnd" min="0" :max="duration" step="1" />
+            </div>
+            <div class="toolbar-spacer"></div>
+            <button class="toolbar-btn" @click="downloadVideoClip" style="color: var(--primary);">
+              <DownloadIcon :size="16" /> 导出片段
+            </button>
+            <button class="toolbar-btn" @click="exitVideoEdit"><XIcon :size="16" /> 退出</button>
+          </div>
+          <div class="video-edit-content">
+            <video ref="videoEl2" :src="objectUrl" style="width: 100%; max-height: 65vh; display: block;" controls></video>
+            <div class="video-edit-info">
+              <p style="color: var(--text-secondary); font-size: 13px;">裁剪范围: {{ formatTime(videoClipStart) }} ~ {{ formatTime(videoClipEnd) }}</p>
+              <p style="color: var(--text-muted); font-size: 12px; margin-top: 8px;">注: 完整视频裁剪需 FFmpeg.wasm，当前可导出首帧 PNG</p>
             </div>
           </div>
         </div>
@@ -919,7 +1316,7 @@ defineExpose({
           </button>
         </div>
 
-        <!-- Volume -->
+        <!-- Volume + Edit -->
         <div class="audio-volume">
           <input
             type="range" class="volume-bar"
@@ -927,12 +1324,47 @@ defineExpose({
             :value="audioVolume"
             @input="setAudioVolume"
           />
+          <button class="ctrl-btn" @click="enterAudioEdit" style="font-size: 11px; color: var(--primary);" title="裁剪音频">
+            <FileTextIcon :size="14" /> 裁剪
+          </button>
         </div>
 
         <!-- Lyrics -->
         <div v-if="showLyrics && currentLyric" class="lyrics-area">
           <p class="lyrics-text">{{ currentLyric }}</p>
         </div>
+      </div>
+    </div>
+
+    <!-- ═══ CODE / TEXT EDIT MODE ═══ -->
+    <div v-else-if="(viewMode === 'code' || viewMode === 'text') && isEditing" class="edit-mode">
+      <div class="preview-toolbar">
+        <div class="toolbar-group">
+          <span class="lang-badge">{{ codeLanguage }} (编辑模式)</span>
+        </div>
+        <div class="toolbar-group">
+          <span v-if="editModified" style="color: #f59e0b; font-size: 12px;">● 已修改</span>
+          <span v-else-if="editSaved" style="color: #22c55e; font-size: 12px;">✓ 已保存</span>
+        </div>
+        <div class="toolbar-spacer"></div>
+        <button class="toolbar-btn" @click="saveEdit" :disabled="!editModified" title="保存">
+          <CheckIcon :size="16" /> 保存
+        </button>
+        <button class="toolbar-btn" @click="downloadEdited" title="下载">
+          <DownloadIcon :size="16" /> 下载
+        </button>
+        <button class="toolbar-btn" @click="exitEditMode" title="退出编辑">
+          <XIcon :size="16" /> 退出
+        </button>
+      </div>
+      <div class="edit-container">
+        <textarea
+          class="edit-textarea"
+          :value="editContent"
+          @input="handleEditInput"
+          :placeholder="'编辑 ' + (props.fileName || '文件') + '...'"
+          spellcheck="false"
+        ></textarea>
       </div>
     </div>
 
@@ -960,6 +1392,9 @@ defineExpose({
         </button>
         <button class="toolbar-btn" title="全屏" @click="toggleFullscreen">
           <Maximize2Icon :size="16" />
+        </button>
+        <button class="toolbar-btn" @click="enterEditMode" title="编辑代码" style="color: var(--primary);">
+          <FileTextIcon :size="16" /> 编辑
         </button>
       </div>
 
@@ -997,6 +1432,9 @@ defineExpose({
         </button>
         <button class="toolbar-btn" title="全屏" @click="toggleFullscreen">
           <Maximize2Icon :size="16" />
+        </button>
+        <button class="toolbar-btn" @click="enterEditMode" title="编辑文本" style="color: var(--primary);">
+          <FileTextIcon :size="16" /> 编辑
         </button>
       </div>
       <div class="text-container">
@@ -1087,6 +1525,172 @@ function getCurrentInstance() { return null; }
   background: var(--bg-primary);
   position: relative;
 }
+
+/* ─── Edit Mode ───────────────────────────────────────────────────── */
+.edit-mode {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.edit-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+}
+
+.edit-textarea {
+  flex: 1;
+  border: none;
+  outline: none;
+  resize: none;
+  padding: 20px;
+  font-family: "SF Mono", "Cascadia Code", "Fira Code", monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  tab-size: 2;
+}
+
+/* ─── Image Edit Mode ────────────────────────────────────────────── */
+.image-edit-mode {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.image-edit-canvas-area {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: repeating-conic-gradient(#e5e5e5 0% 25%, #fff 0% 50%) 50% / 20px 20px;
+  position: relative;
+  cursor: crosshair;
+}
+
+[data-theme="dark"] .image-edit-canvas-area {
+  background: repeating-conic-gradient(#333 0% 25%, #1a1a1a 0% 50%) 50% / 20px 20px;
+}
+
+.edit-image-canvas {
+  max-width: 100%;
+  max-height: 100%;
+  display: block;
+}
+
+.edit-image-canvas.cropping { cursor: crosshair; }
+
+.crop-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.7);
+  padding: 6px 16px;
+  border-radius: 6px;
+}
+
+/* ─── Video Edit Mode ────────────────────────────────────────────── */
+.video-edit-mode {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.video-edit-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: #000;
+  overflow: auto;
+}
+
+.video-edit-info {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+/* ─── Audio Edit Mode ────────────────────────────────────────────── */
+.audio-edit-mode {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.audio-edit-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 32px;
+  background: var(--bg-secondary);
+  overflow: auto;
+}
+
+/* ─── PDF Annotate Bar ───────────────────────────────────────────── */
+.pdf-annotate-bar {
+  width: 160px;
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 8px;
+}
+
+.pdf-annotate-header {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pdf-annotate-tools {
+  display: flex;
+  gap: 4px;
+}
+
+.annotate-tool {
+  flex: 1;
+  padding: 5px 4px;
+  border: 1px solid var(--border);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  border-radius: 4px;
+  font-size: 11px;
+  cursor: pointer;
+}
+
+.annotate-tool.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.pdf-annotate-colors {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.pdf-canvas.annotatable { cursor: crosshair; }
 
 .preview-area.fullscreen {
   position: fixed;

@@ -96,6 +96,12 @@ const handleThemeChange = (e: Event) => {
 
     <!-- Header Actions -->
     <div class="header-actions">
+      <!-- Upload Button -->
+      <button class="btn btn-primary" @click="emit('open-file-picker')">
+        <UploadIcon :size="15" />
+        上传
+      </button>
+
       <!-- Theme Selector -->
       <div class="theme-selector" title="切换主题">
         <MonitorIcon :size="15" />
@@ -110,12 +116,6 @@ const handleThemeChange = (e: Event) => {
           </option>
         </select>
       </div>
-
-      <!-- Upload Button -->
-      <button class="btn btn-primary" @click="emit('open-file-picker')">
-        <UploadIcon :size="15" />
-        上传
-      </button>
 
       <!-- User Avatar -->
       <button class="user-avatar" title="用户设置" aria-label="用户设置">
