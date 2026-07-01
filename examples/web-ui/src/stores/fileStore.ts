@@ -598,7 +598,7 @@ export const useFileStore = defineStore("file", () => {
   // Demo init
   // ─────────────────────────────────────────────────────────────────────────
 
-    const initDemo = () => {
+  const initDemo = () => {
     const demoFolder: TreeNode = {
       id: "folder-demo",
       name: "示例文件夹",
@@ -731,7 +731,7 @@ export const useFileStore = defineStore("file", () => {
       ],
     };
     fileTree.value.push(demoFolder);
-  };;
+  };
 
   // ─────────────────────────────────────────────────────────────────────────
   // Cleanup

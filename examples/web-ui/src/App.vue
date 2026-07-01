@@ -20,6 +20,19 @@ import {
   ClipboardIcon,
   FolderPlusIcon,
   FolderIcon,
+  FileTextIcon,
+  SaveIcon,
+  RefreshCwIcon,
+  ChevronRightIcon,
+  PanelRightOpenIcon,
+  PanelRightCloseIcon,
+  ExternalLinkIcon,
+  PrinterIcon,
+  SunIcon,
+  MoonIcon,
+  MonitorIcon,
+  SearchIcon,
+  FileIcon,
 } from "lucide-vue-next";
 import {
   archivePlugin,
@@ -45,7 +58,6 @@ import pdfWorkerSrc from "pdfjs-dist/build/pdf.worker.mjs?url";
 import { useFileStore } from "./stores/fileStore";
 import Header from "./components/Header.vue";
 import Sidebar from "./components/Sidebar.vue";
-import PreviewToolbar from "./components/PreviewToolbar.vue";
 import StatusBar from "./components/StatusBar.vue";
 import FileConverter from "./components/FileConverter.vue";
 import type { TreeNode } from "./stores/fileStore";
@@ -297,6 +309,50 @@ const goForward = () => {
   if (path) store.currentPath = path;
 };
 
+// ─── Unified Content Tab ──────────────────────────────────────────────────────
+
+const switchToTab = (tab: 'preview' | 'edit') => {
+  activeTab.value = tab;
+};
+
+// ─── Edit Handlers ─────────────────────────────────────────────────────────────
+
+const handleEdit = async () => {
+  if (!previewNode.value) return;
+  
+  const node = previewNode.value;
+  let url = node.previewUrl || '';
+  
+  if (!url && node.file) {
+    url = URL.createObjectURL(node.file);
+  }
+  
+  if (!url) {
+    console.warn('No URL available for editing:', node.name);
+    return;
+  }
+  
+  const ext = node.name?.split('.').pop()?.toLowerCase() || 'txt';
+  
+  editingFile.value = {
+    name: node.name || '未命名文件',
+    url,
+    type: ext,
+    blob: node.file
+  };
+  // 切换到编辑 Tab
+  activeTab.value = 'edit';
+};
+
+const handleEditorSave = (data: { name: string; content: string }) => {
+  console.log('File saved:', data.name);
+  activeTab.value = 'preview';
+};
+
+const handleEditorClose = () => {
+  activeTab.value = 'preview';
+};
+
 // ─── Preview Toolbar Handlers ─────────────────────────────────────────────────
 
 const handleZoomIn = () => {
@@ -363,6 +419,28 @@ const handleSearch = () => {
 const handleConvert = () => {
   showConverter.value = !showConverter.value;
 };
+
+// ─── Theme Cycle ──────────────────────────────────────────────────────
+
+const themeCycle: PreviewTheme[] = ['light', 'dark', 'auto'];
+
+const themeOptions = [
+  { value: 'light' as PreviewTheme, label: '浅色', icon: SunIcon },
+  { value: 'dark' as PreviewTheme, label: '深色', icon: MoonIcon },
+  { value: 'auto' as PreviewTheme, label: '自动', icon: MonitorIcon },
+];
+
+const cycleTheme = () => {
+  const currentIndex = themeCycle.indexOf(store.theme);
+  const nextIndex = (currentIndex + 1) % themeCycle.length;
+  store.theme = themeCycle[nextIndex];
+  store.applyTheme();
+};
+
+const themeIcon = computed(() => {
+  const option = themeOptions.find(t => t.value === store.theme);
+  return option?.icon || SunIcon;
+});
 
 // ─── Status Bar Handlers ───────────────────────────────────────────────────────
 
