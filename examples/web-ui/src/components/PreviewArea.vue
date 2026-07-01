@@ -1336,7 +1336,7 @@ function getCurrentInstance() { return null; }
 }
 
 .pdf-page-container {
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
   background: white;
 }
 
@@ -1522,7 +1522,7 @@ function getCurrentInstance() { return null; }
   align-items: center;
   justify-content: center;
   color: var(--text-muted);
-  box-shadow: var(--shadow);
+  box-shadow: var(--shadow-md);
 }
 
 .waveform-area {

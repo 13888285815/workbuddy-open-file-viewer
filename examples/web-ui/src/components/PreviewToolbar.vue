@@ -240,7 +240,7 @@ const canNextPage = computed(
 
 .toolbar-placeholder {
   font-size: 13px;
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .toolbar-center {

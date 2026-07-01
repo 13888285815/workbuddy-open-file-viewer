@@ -239,7 +239,7 @@ const handleConvert = async () => {
   justify-content: center;
   flex: 1;
   gap: 12px;
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .converter-body {
@@ -368,7 +368,7 @@ const handleConvert = async () => {
 
 .format-ext {
   font-size: 10px;
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .converter-progress {

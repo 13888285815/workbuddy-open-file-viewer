@@ -227,7 +227,7 @@ const formatDate = (date: Date | string): string => {
 }
 
 .status-ready {
-  color: var(--text-tertiary);
+  color: var(--text-muted);
 }
 
 .status-size {

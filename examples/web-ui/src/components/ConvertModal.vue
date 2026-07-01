@@ -596,8 +596,8 @@ const getFormatIcon = (format: string) => {
 }
 
 .tab-btn.active {
-  color: var(--accent-color, #3b82f6);
-  border-bottom-color: var(--accent-color, #3b82f6);
+  color: var(--primary, #3b82f6);
+  border-bottom-color: var(--primary, #3b82f6);
 }
 
 .modal-body {
@@ -679,8 +679,8 @@ const getFormatIcon = (format: string) => {
 }
 
 .add-file-btn:hover {
-  border-color: var(--accent-color, #3b82f6);
-  color: var(--accent-color, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  color: var(--primary, #3b82f6);
 }
 
 .format-grid {
@@ -705,14 +705,14 @@ const getFormatIcon = (format: string) => {
 }
 
 .format-card:hover:not(:disabled) {
-  border-color: var(--accent-color, #3b82f6);
-  background: var(--accent-bg, #eff6ff);
+  border-color: var(--primary, #3b82f6);
+  background: var(--primary-alpha, rgba(59, 130, 246, 0.1));
 }
 
 .format-card.active {
-  border-color: var(--accent-color, #3b82f6);
-  background: var(--accent-bg, #eff6ff);
-  color: var(--accent-color, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  background: var(--primary-alpha, rgba(59, 130, 246, 0.1));
+  color: var(--primary, #3b82f6);
 }
 
 .format-card:disabled {
@@ -748,7 +748,7 @@ const getFormatIcon = (format: string) => {
   width: 100%;
   padding: 12px;
   border: none;
-  background: var(--accent-color, #3b82f6);
+  background: var(--primary, #3b82f6);
   color: white;
   border-radius: 8px;
   font-size: 15px;
@@ -762,7 +762,7 @@ const getFormatIcon = (format: string) => {
 }
 
 .convert-btn:hover:not(:disabled) {
-  background: var(--accent-hover, #2563eb);
+  background: var(--primary-hover, #2563eb);
 }
 
 .convert-btn:disabled {
@@ -801,7 +801,7 @@ const getFormatIcon = (format: string) => {
 
 .progress-fill {
   height: 100%;
-  background: var(--accent-color, #3b82f6);
+  background: var(--primary, #3b82f6);
   border-radius: 4px;
   transition: width 0.3s;
 }

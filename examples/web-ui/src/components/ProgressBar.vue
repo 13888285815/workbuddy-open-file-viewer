@@ -166,7 +166,7 @@ const subtitle = computed(() => {
 }
 
 .progress-label {
-  font-size: var(--progress-font-size);
+  font-size: var(--font-size-sm, 12px);
   font-weight: 500;
   color: var(--text-primary, #1e293b);
 }
@@ -195,7 +195,7 @@ const subtitle = computed(() => {
 }
 
 .progress-value {
-  font-size: var(--progress-font-size);
+  font-size: var(--font-size-sm, 12px);
   font-weight: 600;
   color: var(--text-secondary, #64748b);
 }
@@ -204,9 +204,9 @@ const subtitle = computed(() => {
 .progress-track {
   position: relative;
   width: 100%;
-  height: var(--progress-height);
+  height: 4px;
   background: var(--bg-tertiary, #e5e7eb);
-  border-radius: calc(var(--progress-height) / 2);
+  border-radius: 2px;
   overflow: hidden;
 }
 
@@ -216,7 +216,7 @@ const subtitle = computed(() => {
   left: 0;
   top: 0;
   height: 100%;
-  border-radius: calc(var(--progress-height) / 2);
+  border-radius: 2px;
   transition: width 0.3s ease;
   overflow: hidden;
 }

@@ -59,6 +59,7 @@ import { useFileStore } from "./stores/fileStore";
 import Header from "./components/Header.vue";
 import Sidebar from "./components/Sidebar.vue";
 import StatusBar from "./components/StatusBar.vue";
+import PreviewToolbar from "./components/PreviewToolbar.vue";
 import FileConverter from "./components/FileConverter.vue";
 import type { TreeNode } from "./stores/fileStore";
 
@@ -309,50 +310,6 @@ const goForward = () => {
   if (path) store.currentPath = path;
 };
 
-// ─── Unified Content Tab ──────────────────────────────────────────────────────
-
-const switchToTab = (tab: 'preview' | 'edit') => {
-  activeTab.value = tab;
-};
-
-// ─── Edit Handlers ─────────────────────────────────────────────────────────────
-
-const handleEdit = async () => {
-  if (!previewNode.value) return;
-  
-  const node = previewNode.value;
-  let url = node.previewUrl || '';
-  
-  if (!url && node.file) {
-    url = URL.createObjectURL(node.file);
-  }
-  
-  if (!url) {
-    console.warn('No URL available for editing:', node.name);
-    return;
-  }
-  
-  const ext = node.name?.split('.').pop()?.toLowerCase() || 'txt';
-  
-  editingFile.value = {
-    name: node.name || '未命名文件',
-    url,
-    type: ext,
-    blob: node.file
-  };
-  // 切换到编辑 Tab
-  activeTab.value = 'edit';
-};
-
-const handleEditorSave = (data: { name: string; content: string }) => {
-  console.log('File saved:', data.name);
-  activeTab.value = 'preview';
-};
-
-const handleEditorClose = () => {
-  activeTab.value = 'preview';
-};
-
 // ─── Preview Toolbar Handlers ─────────────────────────────────────────────────
 
 const handleZoomIn = () => {
@@ -469,7 +426,7 @@ const totalFiles = computed(() => {
       if (node.children) countFiles(node.children);
     });
   };
-  countFiles(store.treeData);
+  countFiles(store.fileTree);
   return count;
 });
 
@@ -481,7 +438,7 @@ const totalFolders = computed(() => {
       if (node.children) countFolders(node.children);
     });
   };
-  countFolders(store.treeData);
+  countFolders(store.fileTree);
   return count;
 });
 
@@ -493,7 +450,7 @@ const totalSize = computed(() => {
       if (node.children) sumSizes(node.children);
     });
   };
-  sumSizes(store.treeData);
+  sumSizes(store.fileTree);
   return size;
 });
 

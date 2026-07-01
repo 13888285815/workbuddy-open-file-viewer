@@ -1835,7 +1835,7 @@ html {
 
 /* 键盘导航优化 */
 :focus-visible {
-  outline: 2px solid var(--primary-color);
+  outline: 2px solid var(--primary);
   outline-offset: 2px;
 }
 
@@ -1932,7 +1932,7 @@ html {
     left: 50%;
     width: 100%;
     height: 100%;
-    background: var(--primary-color);
+    background: var(--primary);
     opacity: 0.1;
     transform: translate(-50%, -50%);
     border-radius: 8px;
@@ -1951,7 +1951,7 @@ html {
 .dark input:focus,
 .dark textarea:focus,
 .dark select:focus {
-  border-color: var(--primary-color);
+  border-color: var(--primary);
   box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
 }
 

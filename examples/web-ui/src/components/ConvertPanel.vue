@@ -477,14 +477,14 @@ const close = () => {
 }
 
 .format-btn:hover:not(:disabled) {
-  border-color: var(--accent-color, #3b82f6);
-  background: var(--accent-bg, #eff6ff);
+  border-color: var(--primary, #3b82f6);
+  background: var(--primary-alpha, rgba(59, 130, 246, 0.1));
 }
 
 .format-btn.active {
-  border-color: var(--accent-color, #3b82f6);
-  background: var(--accent-bg, #eff6ff);
-  color: var(--accent-color, #3b82f6);
+  border-color: var(--primary, #3b82f6);
+  background: var(--primary-alpha, rgba(59, 130, 246, 0.1));
+  color: var(--primary, #3b82f6);
 }
 
 .format-btn:disabled {
@@ -525,7 +525,7 @@ const close = () => {
   width: 100%;
   padding: 10px;
   border: none;
-  background: var(--accent-color, #3b82f6);
+  background: var(--primary, #3b82f6);
   color: white;
   border-radius: 8px;
   font-size: 14px;
@@ -539,7 +539,7 @@ const close = () => {
 }
 
 .convert-btn:hover:not(:disabled) {
-  background: var(--accent-hover, #2563eb);
+  background: var(--primary-hover, #2563eb);
 }
 
 .convert-btn:disabled {
@@ -571,7 +571,7 @@ const close = () => {
 
 .progress-fill {
   height: 100%;
-  background: var(--accent-color, #3b82f6);
+  background: var(--primary, #3b82f6);
   border-radius: 4px;
   transition: width 0.3s;
 }

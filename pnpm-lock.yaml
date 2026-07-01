@@ -300,12 +300,6 @@ importers:
       pdfjs-dist:
         specifier: ^4.10.38
         version: 4.10.38
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.15)(typescript@6.0.3)
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
 
   packages/react:
     devDependencies:
@@ -349,14 +343,8 @@ importers:
   packages/vue:
     devDependencies:
       '@open-file-viewer/core':
-        specifier: file:../core
-        version: file:packages/core(@mlightcad/libredwg-web@0.7.4)
-      tsup:
-        specifier: ^8.5.1
-        version: 8.5.1(postcss@8.5.15)(typescript@6.0.3)
-      typescript:
-        specifier: ^6.0.3
-        version: 6.0.3
+        specifier: workspace:*
+        version: link:../core
       vue:
         specifier: ^3.5.13
         version: 3.5.35(typescript@6.0.3)
@@ -944,17 +932,6 @@ packages:
 
   '@one-ini/wasm@0.1.1':
     resolution: {integrity: sha512-XuySG1E38YScSJoMlqovLru4KTUNSjgVTIjyh7qMX6aNN5HY5Ct5LhRJdxO79JtTzKfzV/bnWpz+zquYrISsvw==}
-
-  '@open-file-viewer/core@file:packages/core':
-    resolution: {directory: packages/core, type: directory}
-    peerDependencies:
-      '@mlightcad/libredwg-web': '>=0.7.4'
-      pdfjs-dist: '>=4'
-    peerDependenciesMeta:
-      '@mlightcad/libredwg-web':
-        optional: true
-      pdfjs-dist:
-        optional: true
 
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
@@ -3180,34 +3157,6 @@ snapshots:
 
   '@one-ini/wasm@0.1.1': {}
 
-  '@open-file-viewer/core@file:packages/core(@mlightcad/libredwg-web@0.7.4)':
-    dependencies:
-      '@aiden0z/pptx-renderer': 1.0.3(pdfjs-dist@4.10.38)
-      '@kenjiuno/msgreader': 1.28.0
-      '@mapbox/togeojson': 0.16.2
-      ag-psd: 30.2.0
-      docx-preview: 0.3.7
-      dompurify: 3.4.10
-      heic2any: 0.0.4
-      hls.js: 1.6.16
-      hyparquet: 1.26.1
-      jszip: 3.10.1
-      leaflet: 1.9.4
-      mammoth: 1.12.0
-      marked: 18.0.4
-      pako: 2.1.0
-      postal-mime: 2.7.4
-      prismjs: 1.30.0
-      seek-bzip: 2.0.0
-      shpjs: 6.2.0
-      three: 0.184.0
-      topojson-client: 3.1.0
-      utif: 3.1.0
-      xlsx: 0.18.5
-      xz-decompress: 0.2.3
-    optionalDependencies:
-      '@mlightcad/libredwg-web': 0.7.4
-
   '@pkgjs/parseargs@0.11.0':
     optional: true
 
@@ -4867,39 +4816,12 @@ snapshots:
       - tsx
       - yaml
 
-  tsup@8.5.1(postcss@8.5.15)(typescript@6.0.3):
-    dependencies:
-      bundle-require: 5.1.0(esbuild@0.27.7)
-      cac: 6.7.14
-      chokidar: 4.0.3
-      consola: 3.4.2
-      debug: 4.4.3
-      esbuild: 0.27.7
-      fix-dts-default-cjs-exports: 1.0.1
-      joycon: 3.1.1
-      picocolors: 1.1.1
-      postcss-load-config: 6.0.1(postcss@8.5.15)
-      resolve-from: 5.0.0
-      rollup: 4.61.0
-      source-map: 0.7.6
-      sucrase: 3.35.1
-      tinyexec: 0.3.2
-      tinyglobby: 0.2.17
-      tree-kill: 1.2.2
-    optionalDependencies:
-      postcss: 8.5.15
-      typescript: 6.0.3
-    transitivePeerDependencies:
-      - jiti
-      - supports-color
-      - tsx
-      - yaml
-
   typedarray@0.0.6: {}
 
   typescript@5.9.3: {}
 
-  typescript@6.0.3: {}
+  typescript@6.0.3:
+    optional: true
 
   ufo@1.6.4: {}
 
