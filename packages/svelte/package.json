@@ -1,6 +1,6 @@
 {
   "name": "@open-file-viewer/svelte",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Svelte adapter for Open File Viewer.",
   "license": "MIT",
   "type": "module",

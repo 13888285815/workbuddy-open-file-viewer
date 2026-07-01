@@ -1986,7 +1986,9 @@ function renderViewer() {
     toolbar: true,
     plugins: createPlugins(),
     onLoad(file) {
-      currentFileLabel.textContent = file.name;
+      const vtFn = document.getElementById("vtFileName");
+      if (vtFn) vtFn.textContent = file.name;
+      if (currentFileName === undefined) currentFileName = file.name;
     },
     onError(error) {
       console.error(error);

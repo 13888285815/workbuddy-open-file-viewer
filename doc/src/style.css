@@ -1588,10 +1588,6 @@ pre .token.important {
   border-left: 1px solid var(--border);
 }
 
-.playground-shell.playground-shell-enhanced {
-  grid-template-columns: 260px 320px minmax(0, 1fr);
-}
-
 .file-manager-panel {
   display: flex;
   flex-direction: column;
@@ -1660,8 +1656,7 @@ pre .token.important {
 
 .file-manager-panel.collapsed .file-manager-search,
 .file-manager-panel.collapsed .file-manager-toolbar,
-.file-manager-panel.collapsed .file-manager-list,
-.file-manager-panel.collapsed .file-manager-actions {
+.file-manager-panel.collapsed .file-manager-list {
   display: none;
 }
 
@@ -1669,92 +1664,6 @@ pre .token.important {
   width: 60px;
   min-width: 60px;
   padding: 14px 10px;
-}
-
-.file-manager-search {
-  position: relative;
-  display: flex;
-  align-items: center;
-}
-
-.file-manager-search .search-icon {
-  position: absolute;
-  left: 10px;
-  width: 16px;
-  height: 16px;
-  color: var(--subtle);
-  pointer-events: none;
-}
-
-.file-manager-search input {
-  width: 100%;
-  height: 36px;
-  padding: 0 32px 0 34px;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  background: var(--surface-soft);
-  color: var(--text);
-  font-size: 13px;
-  transition: all 180ms ease;
-}
-
-.file-manager-search input:focus {
-  outline: none;
-  border-color: var(--brand);
-  background: var(--surface);
-  box-shadow: 0 0 0 3px var(--brand-ring);
-}
-
-.file-manager-search input::placeholder {
-  color: var(--subtle);
-}
-
-.file-manager-search .search-clear {
-  position: absolute;
-  right: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 22px;
-  height: 22px;
-  padding: 0;
-  border: none;
-  border-radius: 6px;
-  background: transparent;
-  color: var(--subtle);
-  cursor: pointer;
-  opacity: 0;
-  transition: all 180ms ease;
-}
-
-.file-manager-search input:focus + .search-clear,
-.file-manager-search input:not(:placeholder-shown) + .search-clear {
-  opacity: 1;
-}
-
-.file-manager-search .search-clear:hover {
-  background: var(--brand-soft);
-  color: var(--brand);
-}
-
-.file-manager-search .search-clear svg {
-  width: 14px;
-  height: 14px;
-}
-
-.file-manager-toolbar {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.toolbar-divider {
-  width: 1px;
-  height: 20px;
-  background: var(--border);
-  margin: 0 2px;
 }
 
 .file-manager-list {
@@ -3360,7 +3269,7 @@ pre .token.important {
 
   .product-ui,
   .split-heading,
-  .playground-shell,
+  .playground-main,
   .api-layout,
   .api-doc-layout {
     grid-template-columns: 1fr;
