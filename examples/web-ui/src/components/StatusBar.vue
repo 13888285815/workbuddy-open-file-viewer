@@ -138,11 +138,12 @@ const formatDate = (date: Date | string): string => {
       <span v-else class="status-ready">就绪</span>
     </div>
 
-    <!-- Right: Total size -->
+    <!-- Right: Total size + Version -->
     <div class="status-right">
       <span class="status-size">
         总大小: {{ formatSize(totalSize) }}
       </span>
+      <span class="status-version">意念文件管理器 v1.1.5</span>
     </div>
   </div>
 </template>
@@ -232,6 +233,15 @@ const formatDate = (date: Date | string): string => {
 
 .status-size {
   font-variant-numeric: tabular-nums;
+}
+
+.status-version {
+  color: var(--text-muted);
+  font-size: 11px;
+  opacity: 0.6;
+  border-left: 1px solid var(--border-color);
+  padding-left: 8px;
+  margin-left: 4px;
 }
 
 /* Dark theme */
